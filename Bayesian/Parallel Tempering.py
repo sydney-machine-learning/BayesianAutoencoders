@@ -31,6 +31,9 @@ transform = transforms.Compose([
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
+
+use_dataset = 1
 problemfolder = 'results'
 expno = open('Experiment No.txt', 'r+')
 exp = int(expno.read())
@@ -44,14 +47,13 @@ num_workers = 0
 batch_size = 10
 # number of epochs to train the model
 n_epochs = 1
-use_dataset = int(input("Enter dataset to use: 1. MNIST 2. STL-10 3. CIFAR10 4.Fashion-MNIST   "))
+
 lrate = 0.01
 burnin = 0.25
-numSamples = int(input("Enter no of samples: "))
 ulg = True
 no_channels = 1
-size_train = 1000
-size_test = 1000
+size_train = 500
+size_test = 500
 step_size = 0.05
 num_chains = 4 #equal to no of cores available
 pt_samples = 0.50
@@ -59,28 +61,10 @@ langevin_step = 500
 mt_val = 2
 swap_ratio = 0.1
 maxtemp = 2
-swap_interval = int(swap_ratio * numSamples / num_chains)
+swap_interval = 0
+shape = 0
+outres = None
 
-
-if use_dataset == 1:
-    shape = 28
-    problemfolder += '/autoencoder_' + str(exp) + '_MNIST_  ' + str(numSamples)
-    PATH = 'saved_model' + 'MNIST.pt'
-elif use_dataset == 2:
-    shape = 96
-    problemfolder += '/autoencoder_' + str(exp) + '_STL-10_' + str(numSamples)
-    PATH = 'saved_model' + 'STL-10.pt'
-elif use_dataset == 3:
-    shape = 32
-    problemfolder += '/autoencoder_' + str(exp) + '_CIFAR10_' + str(numSamples)
-    PATH = 'saved_model' + 'CIFAR-10.pt'
-else:
-    shape = 28
-    problemfolder += '/autoencoder_' + str(exp) + '_Fashion-MNIST_' + str(numSamples)
-    PATH = 'saved_model' + 'Fashion-MNIST.pt'
-
-os.makedirs(problemfolder)
-outres = open(problemfolder + '/results.txt', 'w')
 
 
 def data_load(data='train'):
@@ -191,7 +175,7 @@ class Model(nn.Module):
         x = F.relu(x)
         # output layer (with sigmoid for scaling from 0 to 1)
         x = self.t_conv2(x)
-        x = F.sigmoid(x)
+        x = torch.sigmoid(x)
         return x
 
     def evaluate_proposal(self, data, w=None):
@@ -552,63 +536,63 @@ class ptReplica(multiprocessing.Process):
                 w = cae.dictfromlist(result[0:w_size])
                 eta = result[w_size]
 
-            if i % 100 == 0:
-                print(i, msetrain, msetest, 'Iteration Number and MSE Train & Test')
+            #if i % 100 == 0:
+                #print(i, msetrain, msetest, 'Iteration Number and MSE Train & Test')
 
             # """
             # big_data=data_load1()
             # final_test_acc=self.accuracy(big_data)
             # print(final_test_acc)
             # """
-            if i % 200 == 0:
-                param = np.concatenate(
-                    [np.asarray([cae.getparameters(w)]).reshape(-1), np.asarray([eta]).reshape(-1),
-                     np.asarray([likelihood]),
-                     np.asarray([self.temperature]), np.asarray([i])])
-                # print('SWAPPED PARAM',self.temperature,param)
-                # self.parameter_queue.put(param)
-                self.signal_main.set()
-                # param = np.concatenate([s_pos_w[i-self.surrogate_interval:i,:],lhood_list[i-self.surrogate_interval:i,:]],axis=1)
-                # self.surrogate_parameterqueue.put(param)
-                print((num_accepted * 100 / (i * 1.0)), '% was Accepted')
-                accept_ratio = num_accepted / (i * 1.0) * 100
+        param = np.concatenate(
+                [np.asarray([cae.getparameters(w)]).reshape(-1), np.asarray([eta]).reshape(-1),
+                np.asarray([likelihood]),
+                np.asarray([self.temperature]), np.asarray([i])])
+            # print('SWAPPED PARAM',self.temperature,param)
+            # self.parameter_queue.put(param)
+        self.signal_main.set()
+        # param = np.concatenate([s_pos_w[i-self.surrogate_interval:i,:],lhood_list[i-self.surrogate_interval:i,:]],axis=1)
+        # self.surrogate_parameterqueue.put(param)
 
-                print((langevin_count * 100 / (i * 1.0)), '% was Langevin')
-                langevin_ratio = langevin_count / (i * 1.0) * 100
+        print((num_accepted * 100 / (samples * 1.0)), '% was Accepted')
+        accept_ratio = num_accepted / (samples * 1.0) * 100
 
-                print('Exiting the Thread', self.temperature)
+        print((langevin_count * 100 / (samples * 1.0)), '% was Langevin')
+        langevin_ratio = langevin_count / (samples * 1.0) * 100
 
-                file_name = self.path + '/sum_value_' + str(self.temperature) + '.txt'
-                np.savetxt(file_name, sum_value_array, fmt='%1.2f')
+        print('Exiting the Thread', self.temperature)
 
-                file_name = self.path + '/weight[0]_' + str(self.temperature) + '.txt'
-                np.savetxt(file_name, weight_array, fmt='%1.2f')
+        file_name = self.path + '/sum_value_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, sum_value_array, fmt='%1.2f')
 
-                file_name = self.path + '/weight[100]_' + str(self.temperature) + '.txt'
-                np.savetxt(file_name, weight_array1, fmt='%1.2f')
+        file_name = self.path + '/weight[0]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array, fmt='%1.2f')
 
-                file_name = self.path + '/weight[10000]_' + str(self.temperature) + '.txt'
-                np.savetxt(file_name, weight_array2, fmt='%1.2f')
+        file_name = self.path + '/weight[100]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array1, fmt='%1.2f')
 
-                file_name = self.path + '/weight[5000]_' + str(self.temperature) + '.txt'
-                np.savetxt(file_name, weight_array3, fmt='%1.2f')
+        file_name = self.path + '/weight[10000]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array2, fmt='%1.2f')
+
+        file_name = self.path + '/weight[5000]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array3, fmt='%1.2f')
 
 
-                file_name = self.path + '/mse_test_chain_' + str(self.temperature) + '.txt'
-                np.savetxt(file_name, mse_test, fmt='%1.2f')
+        file_name = self.path + '/mse_test_chain_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, mse_test, fmt='%1.2f')
 
-                file_name = self.path + '/mse_train_chain_' + str(self.temperature) + '.txt'
-                np.savetxt(file_name, mse_train, fmt='%1.2f')
+        file_name = self.path + '/mse_train_chain_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, mse_train, fmt='%1.2f')
 
-                file_name = self.path + '/acc_test_chain_' + str(self.temperature) + '.txt'
-                np.savetxt(file_name, acc_test, fmt='%1.2f')
+        file_name = self.path + '/acc_test_chain_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, acc_test, fmt='%1.2f')
 
-                file_name = self.path + '/acc_train_chain_' + str(self.temperature) + '.txt'
-                np.savetxt(file_name, acc_train, fmt='%1.2f')
+        file_name = self.path + '/acc_train_chain_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, acc_train, fmt='%1.2f')
 
-                file_name = self.path + '/accept_percentage' + str(self.temperature) + '.txt'
-                with open(file_name, 'w') as f:
-                    f.write('%d' % accept_ratio)
+        file_name = self.path + '/accept_percentage' + str(self.temperature) + '.txt'
+        with open(file_name, 'w') as f:
+            f.write('%d' % accept_ratio)
 
 
 
@@ -1222,6 +1206,33 @@ class ParallelTempering:
 
 
 def main():
+    use_dataset = int(input("Enter dataset to use: 1. MNIST 2. STL-10 3. CIFAR10 4.Fashion-MNIST   "))
+    numSamples = int(input("Enter no of samples: "))
+    swap_interval = int(swap_ratio * numSamples / num_chains)
+    problemfolder = 'results'
+
+
+    if use_dataset == 1:
+        shape = 28
+        problemfolder += '/autoencoder_' + str(exp) + '_MNIST_  ' + str(numSamples)
+        PATH = 'saved_model' + 'MNIST.pt'
+    elif use_dataset == 2:
+        shape = 96
+        problemfolder += '/autoencoder_' + str(exp) + '_STL-10_' + str(numSamples)
+        PATH = 'saved_model' + 'STL-10.pt'
+    elif use_dataset == 3:
+        shape = 32
+        problemfolder += '/autoencoder_' + str(exp) + '_CIFAR10_' + str(numSamples)
+        PATH = 'saved_model' + 'CIFAR-10.pt'
+    else:
+        shape = 28
+        problemfolder += '/autoencoder_' + str(exp) + '_Fashion-MNIST_' + str(numSamples)
+        PATH = 'saved_model' + 'Fashion-MNIST.pt'
+
+    os.makedirs(problemfolder)
+    global outres
+    outres = open(problemfolder + '/results.txt', 'w')
+
     time1 = times.now()
 
     pt = ParallelTempering(ulg,num_chains, maxtemp, numSamples,
