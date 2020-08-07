@@ -52,16 +52,16 @@ lrate = 0.01
 burnin = 0.25
 ulg = True
 no_channels = 1
-size_train = 1500
-size_test = 1500
+size_train = 2000
+size_test = 1000
 step_size = 0.05
-num_chains = 5 #equal to no of cores available
+num_chains = 6 #equal to no of cores available
 pt_samples = 0.50
 langevin_step = 500
 mt_val = 2
 swap_ratio = 0.1
 maxtemp = 2
-swap_interval = 0
+swap_interval = 1
 shape = 28
 
 
