@@ -62,8 +62,7 @@ mt_val = 2
 swap_ratio = 0.1
 maxtemp = 2
 swap_interval = 0
-shape = 0
-outres = None
+shape = 28
 
 
 
@@ -187,7 +186,8 @@ class Model(nn.Module):
         for i, sample in enumerate(data, 0):
             inputs, labels = sample
             # print(inputs.shape)
-            output = self.forward(inputs)
+            output = copy.deepcopy(self.forward(inputs).detach())
+            output = output.data
             loss = self.criterion(output, inputs)
             # loss = loss.item()*inputs.size(0)
             y_pred.append(loss)
@@ -213,7 +213,7 @@ class Model(nn.Module):
                 # perform a single optimization step (parameter update)
                 self.optimizer.step()
                 # update running training loss
-                self.los += loss.item() * batch_size
+                self.los += copy.deepcopy(loss.item() * batch_size)
                 # print(lo,' is loss')
         return copy.deepcopy(self.state_dict())
 
@@ -257,6 +257,7 @@ class ptReplica(multiprocessing.Process):
                  step_size, langevin_step):
         self.samples = samples
         self.cae = Model()
+        #self.outres1 =outresult
         multiprocessing.Process.__init__(self)
         # self.cae.load_state_dict(torch.load(PATH)) #to load from pretrained model
         self.processID = temperature
@@ -287,8 +288,8 @@ class ptReplica(multiprocessing.Process):
 
 
 
-        outres.write("Langevin probability used " + str(self.l_prob))
-        outres.write('\n')
+        #self.outres1.write("Langevin probability used " + str(self.l_prob))
+        #self.outres1.write('\n')
 
         # ----------------
 
@@ -297,8 +298,8 @@ class ptReplica(multiprocessing.Process):
         # y = data
         fx = cae.evaluate_proposal(data, w)
         fx = [x * batch_size for x in fx]
-        mse = torch.sum(torch.Tensor(fx)) / len(data)
-        loss = np.sum(-0.5 * np.log(2 * math.pi * tau_sq) - 0.5 * np.square(fx) / tau_sq)
+        mse = torch.sum(torch.Tensor(fx))/ len(data)
+        loss = torch.as_tensor(np.sum(-0.5 * np.log(2 * math.pi * tau_sq) - 0.5 * np.square(fx) / tau_sq))
         # print(type(loss))
         return [torch.sum(loss) / self.adapttemp, fx, mse]
 
@@ -599,13 +600,13 @@ class ptReplica(multiprocessing.Process):
         # print(len(ll))
         print((num_accepted * 100 / (samples * 1.0)), '% was Accepted')
         temp = num_accepted * 100 / samples * 1.0
-        outres.write(str(temp) + ' % was Accepted')
-        outres.write('\n')
+        #self.outres1.write(str(temp) + ' % was Accepted')
+        #self.outres1.write('\n')
 
         print((langevin_count * 100 / (samples * 1.0)), '% was Langevin')
         temp = langevin_count * 100 / samples * 1.0
-        outres.write(str(temp) + ' % was Langevin')
-        outres.write('\n')
+        #self.outres1.write(str(temp) + ' % was Langevin')
+        #self.outres1.write('\n')
 
         ###################################VISUALIZATION OF RESULT#############################################
         dataiter = iter(data_load(data='test'))
@@ -643,6 +644,7 @@ class ParallelTempering:
     def __init__(self, use_langevin_gradients,num_chains, maxtemp, NumSample, swap_interval,
                  path, batch_size, bi,step_size, langevin_step):
         cae = Model()
+        #self.outres = outres
         self.cae = cae
         self.traindata = data_load(data='train')
         self.testdata = data_load(data='test')
@@ -1210,7 +1212,7 @@ def main():
     numSamples = int(input("Enter no of samples: "))
     swap_interval = int(swap_ratio * numSamples / num_chains)
     problemfolder = 'results'
-
+    global shape
 
     if use_dataset == 1:
         shape = 28
