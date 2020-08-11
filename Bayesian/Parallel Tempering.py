@@ -55,13 +55,13 @@ no_channels = 1
 size_train = 2000
 size_test = 1000
 step_size = 0.05
-num_chains = 6 #equal to no of cores available
+num_chains = 8 #equal to no of cores available
 pt_samples = 0.50
 langevin_step = 500
 mt_val = 2
 swap_ratio = 0.002
 maxtemp = 2
-swap_interval = 1
+swap_interval = 3
 shape = 28
 
 
@@ -1210,7 +1210,7 @@ class ParallelTempering:
 def main():
     use_dataset = int(input("Enter dataset to use: 1. MNIST 2. STL-10 3. CIFAR10 4.Fashion-MNIST   "))
     numSamples = int(input("Enter no of samples: "))
-    swap_interval = int(swap_ratio * numSamples / num_chains)
+    #swap_interval = int(swap_ratio * numSamples / num_chains)
     problemfolder = 'results'
     global shape
 
