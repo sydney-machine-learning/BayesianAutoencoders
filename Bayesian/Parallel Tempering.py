@@ -57,7 +57,7 @@ size_test = 1500
 step_size = 0.05
 num_chains = 6 #equal to no of cores available
 pt_samples = 0.50
-langevin_step = 500
+langevin_step = 100
 mt_val = 2
 swap_ratio = 0.002
 maxtemp = 2
@@ -413,7 +413,7 @@ class ptReplica(multiprocessing.Process):
             lx = np.random.uniform(0, 1, 1)
             old_w = cae.state_dict()
             # and (lx < self.l_prob)
-            if (self.use_langevin_gradients is True) and (lx < self.l_prob):
+            if (i<self.langevin_step) or (self.use_langevin_gradients is True) and (lx < self.l_prob):
                 w_gd = cae.langevin_gradient(train)  # Eq 8
                 w_proposal = cae.addnoiseandcopy(0, step_w)  # np.random.normal(w_gd, step_w, w_size) # Eq 7
                 w_prop_gd = cae.langevin_gradient(train)
