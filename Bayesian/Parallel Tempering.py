@@ -44,7 +44,7 @@ expno.truncate()
 
 num_workers = 0
 # how many samples per batch to load
-batch_size = 20
+batch_size = 10
 # number of epochs to train the model
 n_epochs = 1
 
