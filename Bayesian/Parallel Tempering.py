@@ -54,14 +54,14 @@ ulg = True
 no_channels = 1
 size_train = 2000
 size_test = 1500
-step_size = 0.05
+step_size = 0.1
 num_chains = 6 #equal to no of cores available
 pt_samples = 0.50
 langevin_step = 100
 mt_val = 2
 swap_ratio = 0.002
 maxtemp = 2
-swap_interval = 3
+swap_interval = 2
 shape = 28
 
 
