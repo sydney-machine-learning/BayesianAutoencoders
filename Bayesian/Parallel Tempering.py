@@ -44,7 +44,7 @@ expno.truncate()
 
 num_workers = 0
 # how many samples per batch to load
-batch_size = 10
+batch_size = 20
 # number of epochs to train the model
 n_epochs = 1
 
@@ -52,8 +52,8 @@ lrate = 0.01
 burnin = 0.25
 ulg = True
 no_channels = 1
-size_train = 2000
-size_test = 1000
+size_train = 3000
+size_test = 1500
 step_size = 0.05
 num_chains = 8 #equal to no of cores available
 pt_samples = 0.50
