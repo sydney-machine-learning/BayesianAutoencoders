@@ -22,7 +22,6 @@ import math
 import copy
 import os
 import matplotlib.pyplot as plt
-matplotlib.use('Agg')
 import times
 import multiprocessing
 
