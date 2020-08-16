@@ -142,16 +142,16 @@ class Model(nn.Module):
 
         ## encoder##
         # conv layer (depth from 1 --> 16), 3x3 kernels
-        self.conv1 = nn.Conv2d(1, 64, 3, stride=1, padding=1)
+        self.conv1 = nn.Conv2d(1, 32, 3, stride=1, padding=1)
         # conv layer (depth from 16 --> 4), 3x3 kernels
-        self.conv2 = nn.Conv2d(64, 32, 3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(32, 16, 3, stride=1, padding=1)
         # pooling layer to reduce x-y dims by two; kernel and stride of 2
         self.pool = nn.MaxPool2d(2, 2)
 
         ## decoder##
         ## a kernel of 2 and a stride of 2 will increase the spatial dims by 2
-        self.t_conv1 = nn.ConvTranspose2d(32, 64, 2, stride=2)
-        self.t_conv2 = nn.ConvTranspose2d(64, 1, 2, stride=2)
+        self.t_conv1 = nn.ConvTranspose2d(16, 32, 2, stride=2)
+        self.t_conv2 = nn.ConvTranspose2d(32, 1, 2, stride=2)
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
 
     def forward(self, x):
