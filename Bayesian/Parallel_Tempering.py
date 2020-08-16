@@ -524,7 +524,7 @@ class ptReplica(multiprocessing.Process):
             weight_array[i] = ll[0]
             weight_array1[i] = ll[100]
             weight_array3[i] = ll[5000]
-            weight_array2[i] = ll[10000]
+            weight_array2[i] = ll[7000]
 
             if (i + 1) % self.swap_interval == 0:
                 param = np.concatenate([np.asarray([cae.getparameters(w)]).reshape(-1), np.asarray([eta]).reshape(-1),
