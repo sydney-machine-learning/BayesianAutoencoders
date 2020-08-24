@@ -61,7 +61,7 @@ langevin_step = 100
 mt_val = 2
 swap_ratio = 0.002
 maxtemp = 2
-swap_interval = 2
+swap_interval = 5
 shape = 28
 
 
