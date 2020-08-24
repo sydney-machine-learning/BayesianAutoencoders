@@ -48,7 +48,7 @@ batch_size = 100
 # number of epochs to train the model
 n_epochs = 1
 
-lrate = 0.005
+lrate = 0.01
 burnin = 0.25
 ulg = True
 no_channels = 1
