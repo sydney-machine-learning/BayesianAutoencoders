@@ -27,7 +27,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 device = ('cuda' if torch.cuda.is_available() else 'cpu')
 
-n_samples = 1500
+n_samples = 1600
 noise = 0.05
 X, colors = make_swiss_roll(n_samples, noise)
 
