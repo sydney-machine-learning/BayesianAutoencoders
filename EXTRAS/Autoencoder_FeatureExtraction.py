@@ -31,7 +31,7 @@ n_samples = 1600
 noise = 0.05
 X, colors = make_swiss_roll(n_samples, noise)
 print(X)
-X= torch.stack([torch.from_numpy(np.array(i)) for i in X])
+X= torch.Tensor(X)
 print(X)
 
 X = MinMaxScaler().fit_transform(X)
