@@ -71,21 +71,23 @@ enc_shape= 2
 
 def data_load(data='train'):
     if data == 'test':
-        test_data = make_swiss_roll(1600,0.05)
+        test_data, colors = make_swiss_roll(1600, 0.05)
         test_data = torch.stack([torch.from_numpy(np.array(i)) for i in test_data])
-        print(test_data)
         test_data, _ = torch.utils.data.random_split(test_data, [size_test, len(test_data) - size_test])
         #test_data = MinMaxScaler().fit_transform(test_data)
-        test_data = torch.stack(test_data).to(device)
         return test_data
     else:
         train_data = make_swiss_roll(1600,0.05)
         train_data = torch.stack([torch.from_numpy(np.array(i)) for i in train_data])
-        print(train_data)
         train_data, _ = torch.utils.data.random_split(train_data, [size_train, len(train_data) - size_train])
         #train_data = MinMaxScaler().fit_transform(train_data)
-        train_data = torch.stack(train_data).to(device)
         return train_data
+    
+
+
+print(X)
+X= torch.stack([torch.from_numpy(np.array(i)) for i in X])
+print(X)
 
 
 
