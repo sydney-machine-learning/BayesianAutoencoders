@@ -31,7 +31,6 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 device = "cpu"
-X, colors = make_swiss_roll()
 
 
 
@@ -84,10 +83,6 @@ def data_load(data='train'):
         return train_data
     
 
-
-print(X)
-X= torch.stack([torch.from_numpy(np.array(i)) for i in X])
-print(X)
 
 
 
