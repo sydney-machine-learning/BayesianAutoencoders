@@ -71,11 +71,15 @@ enc_shape= 2
 
 def data_load(data='train'):
     if data=='test':
-        test_data= make_swiss_roll(1600)
+        test_data, = make_swiss_roll(1600)
         test_data, _ = torch.utils.data.random_split(test_data, [size_test, len(test_data) - size_test])
+        test_data = MinMaxScaler().fit_transform(test_data)
+        return test_data
     else:
-        train_data = make_swiss_roll(1600)
+        train_data, = make_swiss_roll(1600)
         train_data, _ = torch.utils.data.random_split(train_data, [size_train, len(train_data) - size_train])
+        train_data = MinMaxScaler().fit_transform(train_data)
+        return train_data
 
 
 
@@ -141,20 +145,11 @@ class Model(nn.Module):
         if w is not None:
             self.loadparameters(w)
         for epoch in range(1, n_epochs + 1):
-            self.los = 0
             self.optimizer.zero_grad()
-            # forward pass: compute predicted outputs by passing inputs to the model
-            outputs = self.forward(x)
-            # images_1, outputs_1 = reshape(images, outputs)
-            # calculate the loss
-            loss = self.criterion(outputs, x)
-            # backward pass: compute gradient of the loss with respect to model parameters
+            output = self.forward(x)
+            loss = self.criterion(output, x)
             loss.backward()
-            # perform a single optimization step (parameter update)
             self.optimizer.step()
-            # update running training loss
-            self.los += copy.deepcopy(loss.item())
-            # print(lo,' is loss')
         return copy.deepcopy(self.state_dict())
 
     def getparameters(self, w=None):
