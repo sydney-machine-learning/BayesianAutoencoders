@@ -71,10 +71,10 @@ enc_shape= 2
 
 def data_load(data='train'):
     if data=='test':
-        test_data, = make_swiss_roll(1600)
+        test_data= make_swiss_roll(1600)
         test_data, _ = torch.utils.data.random_split(test_data, [size_test, len(test_data) - size_test])
     else:
-        train_data, = make_swiss_roll(1600)
+        train_data = make_swiss_roll(1600)
         train_data, _ = torch.utils.data.random_split(train_data, [size_train, len(train_data) - size_train])
 
 
