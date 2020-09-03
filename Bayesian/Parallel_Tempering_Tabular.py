@@ -102,9 +102,9 @@ def reshape(images, outputs):
 class Model(nn.Module):
     # Defining input size, hidden layer size, output size and batch size respectively
     def __init__(self):
+        super(Model, self).__init__()
         self.los = 0
         self.criterion = torch.nn.MSELoss()
-        super(Model, self).__init__()
         self.encode = nn.Sequential(
             nn.Linear(in_shape, 128),
             nn.ReLU(True),
