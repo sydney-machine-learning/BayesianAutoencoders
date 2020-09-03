@@ -93,14 +93,6 @@ def data_load(data='train'):
 def f(): raise Exception("Found exit()")
 
 
-def reshape(images, outputs):
-    outputs_1 = outputs
-    outputs_1 = outputs_1.reshape([batch_size, shape * shape])
-    images_1 = images
-    images_1 = images_1.reshape([batch_size, shape * shape])
-    return images_1, outputs_1
-
-
 class Model(nn.Module):
     # Defining input size, hidden layer size, output size and batch size respectively
     def __init__(self):
@@ -131,8 +123,8 @@ class Model(nn.Module):
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
 
     def forward(self, x):
-        x = self.encode(x.double())
-        x = self.decode(x.double())
+        x = self.encode(x)
+        x = self.decode(x)
         return x
 
     def evaluate_proposal(self, data, w=None):
