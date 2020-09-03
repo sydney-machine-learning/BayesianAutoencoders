@@ -137,7 +137,7 @@ class Model(nn.Module):
         output = output.data
         loss = self.criterion(output, data)
         # loss = loss.item()*inputs.size(0)
-        y_pred.append(loss)
+        y_pred.append(loss.item())
         self.los += loss
         return y_pred
 
