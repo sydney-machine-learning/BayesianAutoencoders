@@ -63,6 +63,8 @@ swap_ratio = 0.002
 maxtemp = 2
 swap_interval = 2
 shape = 28
+no_samples = 1600
+noise = 0.05
 in_shape= 3
 enc_shape= 2
 
