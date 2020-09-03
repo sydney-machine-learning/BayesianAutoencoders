@@ -72,13 +72,13 @@ enc_shape= 2
 
 def data_load(data='train'):
     if data == 'test':
-        test_data, colors = make_swiss_roll(1600)
+        test_data, colors = make_swiss_roll(no_samples,noise)
         test_data = torch.Tensor(test_data)
        # test_data, _ = torch.utils.data.random_split(test_data, [size_test, len(test_data) - size_test])
         #test_data = MinMaxScaler().fit_transform(test_data)
         return test_data
     else:
-        train_data = make_swiss_roll(1600)
+        train_data = make_swiss_roll(no_samples,noise)
         train_data = torch.Tensor(train_data)
         #train_data, _ = torch.utils.data.random_split(train_data, [size_train, len(train_data) - size_train])
         #train_data = MinMaxScaler().fit_transform(train_data)
