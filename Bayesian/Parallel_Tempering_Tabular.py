@@ -127,8 +127,8 @@ class Model(nn.Module):
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
 
     def forward(self, x):
-        x = self.encode(x)
-        x = self.decode(x)
+        x = self.encode(x.double())
+        x = self.decode(x.double())
         return x
 
     def evaluate_proposal(self, data, w=None):
