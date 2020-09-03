@@ -74,7 +74,7 @@ def data_load(data='train'):
     if data == 'test':
         X, colors = make_swiss_roll(no_samples,noise)
         X = torch.Tensor(X)
-       # test_data, _ = torch.utils.data.random_split(test_data, [size_test, len(test_data) - size_test])
+        #test_data, _ = torch.utils.data.random_split(test_data, [size_test, len(test_data) - size_test])
         #test_data = MinMaxScaler().fit_transform(test_data)
         return X
     else:
@@ -82,7 +82,7 @@ def data_load(data='train'):
         X = torch.Tensor(X)
         #train_data, _ = torch.utils.data.random_split(train_data, [size_train, len(train_data) - size_train])
         #train_data = MinMaxScaler().fit_transform(train_data)
-        return train_data
+        return X
     
 
 
