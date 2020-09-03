@@ -291,8 +291,8 @@ class ptReplica(multiprocessing.Process):
         delta_likelihood = 0.5  # an arbitrary position
         prior_current = self.prior_likelihood(sigma_squared, cae.getparameters(w))
 
-        [likelihood, pred_train, msetrain] = self.likelihood_func(cae, train, w, tau_sq=1.5)
-        [_, pred_test, msetest] = self.likelihood_func(cae, test, w, tau_sq=1.5)
+        [likelihood, pred_train, msetrain] = self.likelihood_func(cae, train, w, tau_sq=0.5)
+        [_, pred_test, msetest] = self.likelihood_func(cae, test, w, tau_sq=0.5)
 
         # Beginning Sampling using MCMC RANDOMWALK
 
