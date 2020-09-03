@@ -63,7 +63,7 @@ swap_ratio = 0.002
 maxtemp = 2
 swap_interval = 2
 shape = 28
-no_samples = 1600
+no_samples = 2400
 noise = 0.05
 in_shape= 3
 enc_shape= 2
@@ -79,7 +79,7 @@ def data_load(data='train'):
         #test_data = MinMaxScaler().fit_transform(test_data)
         return X
     else:
-        X, colors= make_swiss_roll(800,noise)
+        X, colors= make_swiss_roll(no_samples,noise)
         X = torch.Tensor(X)
         X= X.double()
         #train_data, _ = torch.utils.data.random_split(train_data, [size_train, len(train_data) - size_train])
