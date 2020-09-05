@@ -416,7 +416,7 @@ class ptReplica(multiprocessing.Process):
             sum_value = diff_likelihood + diff_prior + diff_prop
             #print(sum_value)
             sum_value*=-0.00001
-             print(sum_value)
+            print(sum_value)
             u = np.log(random.uniform(0, 1))
 
             sum_value_array[i] = sum_value
