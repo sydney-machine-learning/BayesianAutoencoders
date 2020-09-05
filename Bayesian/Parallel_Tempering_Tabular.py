@@ -48,13 +48,13 @@ batch_size = 10
 # number of epochs to train the model
 n_epochs = 1
 
-lrate = 0.008
+lrate = 0.01
 burnin = 0.25
 ulg = True
 no_channels = 1
 size_train = 900
 size_test = 700
-step_size = 0.01
+step_size = 0.1
 num_chains = 8 #equal to no of cores available
 pt_samples = 0.50
 langevin_step = 50
