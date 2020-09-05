@@ -417,7 +417,7 @@ class ptReplica(multiprocessing.Process):
             #print(sum_value)
             sum_value*=-0.0001
             print(sum_value)
-            u = random.uniform(0,0.1)
+            u = random.uniform(0.1,0.2)
             print(u)
 
             sum_value_array[i] = sum_value
