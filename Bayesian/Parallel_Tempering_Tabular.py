@@ -462,6 +462,7 @@ class ptReplica(multiprocessing.Process):
                 acc_test[i,] = acc_test[i - 1,]
 
             ll = cae.getparameters()
+            print(len(ll))
             # print(ll[0])
             weight_array[i] = ll[0]
             weight_array1[i] = ll[100]
