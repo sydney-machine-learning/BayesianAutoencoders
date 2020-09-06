@@ -439,9 +439,9 @@ class ptReplica(multiprocessing.Process):
                 w = copy.deepcopy(w_proposal)  # cae.getparameters(w_proposal)
                 acc_train1 = self.accuracy(train)
                 acc_test1 = self.accuracy(test)
-                print('like',diff_likelihood)
-                print('prior',diff_prior)
-                print('prop',diff_prop)
+                #print('like',diff_likelihood)
+                #print('prior',diff_prior)
+                #print('prop',diff_prop)
                 print(i, msetrain, msetest, acc_train1, acc_test1, 'accepted')
                 mse_train[i] = msetrain
                 mse_test[i] = msetest
@@ -453,9 +453,9 @@ class ptReplica(multiprocessing.Process):
                 cae.loadparameters(w)
                 acc_train1 = self.accuracy(train)
                 acc_test1 = self.accuracy(test)
-                print('like',diff_likelihood)
-                print('prior',diff_prior)
-                print('prop',diff_prop)
+                #print('like',diff_likelihood)
+                #print('prior',diff_prior)
+                #print('prop',diff_prop)
                 print(i, msetrain, msetest, acc_train1, acc_test1, 'rejected')
                 # mse_train[i] = msetrain
                 # mse_test[i] = msetest
