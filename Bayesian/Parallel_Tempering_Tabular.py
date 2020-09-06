@@ -412,7 +412,6 @@ class ptReplica(multiprocessing.Process):
             #    mh_prob = min(1, math.exp(diff_likelihood))
             # except OverflowError as e:
             #    mh_prob = 1
-
             sum_value = diff_likelihood + diff_prior + diff_prop
             #print(sum_value)
             sum_value*=-0.0001
@@ -440,6 +439,9 @@ class ptReplica(multiprocessing.Process):
                 w = copy.deepcopy(w_proposal)  # cae.getparameters(w_proposal)
                 acc_train1 = self.accuracy(train)
                 acc_test1 = self.accuracy(test)
+                print('like',diff_likelihood)
+                print('prior',diff_prior)
+                print('prop',diff_prop)
                 print(i, msetrain, msetest, acc_train1, acc_test1, 'accepted')
                 mse_train[i] = msetrain
                 mse_test[i] = msetest
@@ -451,6 +453,9 @@ class ptReplica(multiprocessing.Process):
                 cae.loadparameters(w)
                 acc_train1 = self.accuracy(train)
                 acc_test1 = self.accuracy(test)
+                print('like',diff_likelihood)
+                print('prior',diff_prior)
+                print('prop',diff_prop)
                 print(i, msetrain, msetest, acc_train1, acc_test1, 'rejected')
                 # mse_train[i] = msetrain
                 # mse_test[i] = msetest
