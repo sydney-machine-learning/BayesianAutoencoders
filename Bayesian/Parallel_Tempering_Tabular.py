@@ -28,6 +28,7 @@ import mpl_toolkits.mplot3d.axes3d as p3
 from sklearn.datasets import make_swiss_roll
 #from sklearn.datasets import fetch_california_housing
 from sklearn.preprocessing import MinMaxScaler
+from decimal import *
 
 
 device = "cpu"
@@ -414,7 +415,7 @@ class ptReplica(multiprocessing.Process):
             #    mh_prob = 1
             sum_value = diff_likelihood + diff_prior + diff_prop
             #print(sum_value)
-            scaling=0.999769768
+            scaling = Decimal('0.999769768')
             sum_value*=scaling.log10()
             #print(sum_value)
             u = random.uniform(0.3,0.4)
