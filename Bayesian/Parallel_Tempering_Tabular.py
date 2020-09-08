@@ -414,7 +414,8 @@ class ptReplica(multiprocessing.Process):
             #    mh_prob = 1
             sum_value = diff_likelihood + diff_prior + diff_prop
             #print(sum_value)
-            sum_value*=-0.0001
+            scaling=0.999769768
+            sum_value*=scaling.log10()
             #print(sum_value)
             u = random.uniform(0.3,0.4)
             #print(u)
