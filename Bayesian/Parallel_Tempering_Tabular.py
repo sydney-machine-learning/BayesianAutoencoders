@@ -1131,7 +1131,7 @@ class ParallelTempering:
 
 
 def main():
-    use_dataset = int(input("Enter dataset to use: 1. MNIST 2. STL-10 3. CIFAR10 4.Fashion-MNIST   "))
+    use_dataset = int(input("Enter dataset to use: 1. Swiss Roll 2. Madelon Dataset "))
     numSamples = int(input("Enter no of samples: "))
     #swap_interval = int(swap_ratio * numSamples / num_chains)
     problemfolder = 'results'
@@ -1139,20 +1139,13 @@ def main():
 
     if use_dataset == 1:
         shape = 28
-        problemfolder += '/autoencoder_' + str(exp) + '_MNIST_  ' + str(numSamples)
-        PATH = 'saved_model' + 'MNIST.pt'
+        problemfolder += '/autoencoder_' + str(exp) + '_SwissRoll_  ' + str(numSamples)
+        PATH = 'saved_model' + 'SR.pt'
     elif use_dataset == 2:
         shape = 96
-        problemfolder += '/autoencoder_' + str(exp) + '_STL-10_' + str(numSamples)
-        PATH = 'saved_model' + 'STL-10.pt'
-    elif use_dataset == 3:
-        shape = 32
-        problemfolder += '/autoencoder_' + str(exp) + '_CIFAR10_' + str(numSamples)
-        PATH = 'saved_model' + 'CIFAR-10.pt'
-    else:
-        shape = 28
-        problemfolder += '/autoencoder_' + str(exp) + '_Fashion-MNIST_' + str(numSamples)
-        PATH = 'saved_model' + 'Fashion-MNIST.pt'
+        problemfolder += '/autoencoder_' + str(exp) + '_Madelon_' + str(numSamples)
+        PATH = 'saved_model' + 'Madelon.pt'
+  
 
     os.makedirs(problemfolder)
     global outres
