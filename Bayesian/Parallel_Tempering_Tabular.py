@@ -434,7 +434,7 @@ class ptReplica(multiprocessing.Process):
             scaling = 0.999769768
             sum_value *= math.log10(scaling)
             # print(sum_value)
-            u = random.uniform(0.3, 0.4)
+            u = random.uniform(0.4, 0.5)
             # print(u)
 
             sum_value_array[i] = sum_value
