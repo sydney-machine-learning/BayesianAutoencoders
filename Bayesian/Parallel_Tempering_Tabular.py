@@ -431,10 +431,10 @@ class ptReplica(multiprocessing.Process):
             #    mh_prob = 1
             sum_value = diff_likelihood + diff_prior + diff_prop
             # print(sum_value)
-            scaling = 0.999769768
-            sum_value *= math.log10(scaling)
+            #scaling = 0.999769768
+            #sum_value *= math.log10(scaling)
             # print(sum_value)
-            u = random.uniform(0, 1)
+            u = np.log(random.uniform(0, 1))
             # print(u)
 
             sum_value_array[i] = sum_value
