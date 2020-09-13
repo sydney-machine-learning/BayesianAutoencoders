@@ -232,7 +232,7 @@ class ptReplica(multiprocessing.Process):
         self.use_langevin_gradients = use_langevin_gradients
         self.sgd_depth = 1  # Keep as 1
         self.batch_size = batch_size
-        self.l_prob = 0
+        self.l_prob = 1
         self.adapttemp = temperature
         self.temperature = temperature
         self.train_loss = 0
