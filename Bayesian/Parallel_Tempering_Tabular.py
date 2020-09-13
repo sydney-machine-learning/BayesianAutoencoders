@@ -933,7 +933,7 @@ class ParallelTempering:
         
         num_bins = 10
         n, bins, patches = plt.hist(sum_val_array_single_chain_plot, num_bins, facecolor='blue', alpha=0.5)
-        plt.tite("Sum Value Histogram")
+        plt.title("Sum Value Histogram")
         plt.savefig(self.path + '/sum_value_histogram.png')
         plt.clf()
 
