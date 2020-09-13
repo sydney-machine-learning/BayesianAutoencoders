@@ -930,6 +930,13 @@ class ParallelTempering:
         plt.title("Sum Value Single Chain")
         plt.savefig(self.path + '/sum_value_single_chain.png')
         plt.clf()
+        
+        num_bins = 10
+        n, bins, patches = plt.hist(x, num_bins, facecolor='blue', alpha=0.5)
+        plt.tite("Sum Value Histogram")
+        plt.savefig(self.path + '/sum_value_histogram.png')
+        plt.clf()
+
 
         color = 'tab:red'
         plt.plot(x2, acc_train_single_chain_plot, label="Train", color=color)
