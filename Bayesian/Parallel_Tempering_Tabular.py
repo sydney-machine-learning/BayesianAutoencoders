@@ -64,7 +64,7 @@ no_samples = 1600
 noise = 0.05
 in_shape = 500
 enc_shape = 300
-use_dataset = 2
+use_dataset = 1
 
 
 
