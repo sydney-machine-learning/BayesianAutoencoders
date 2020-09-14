@@ -380,11 +380,11 @@ class ptReplica(multiprocessing.Process):
                 diff_prop = first - second
                 diff_prop = diff_prop
                 langevin_count = langevin_count + 1
-                print('langevin')
+                #print('langevin')
             else:
                 diff_prop = 0
                 w_proposal = cae.addnoiseandcopy(0, step_w)  # np.random.normal(w, step_w, w_size)
-                print('random')
+                #print('random')
 
             [likelihood_proposal, pred_train, msetrain] = self.likelihood_func(cae, train, w, tau_sq=1)
             [likelihood_ignore, pred_test, msetest] = self.likelihood_func(cae, test, w, tau_sq=1)
@@ -463,7 +463,7 @@ class ptReplica(multiprocessing.Process):
                 # print('prior',diff_prior)
                 # print('prop',diff_prop)
                 print(i, msetrain, msetest, acc_train1, acc_test1, 'accepted')
-                print(sum_value)
+                #print(sum_value)
                 mse_train[i] = msetrain
                 mse_test[i] = msetest
                 acc_train[i,] = acc_train1
@@ -478,7 +478,7 @@ class ptReplica(multiprocessing.Process):
                 # print('prior',diff_prior)
                 # print('prop',diff_prop)
                 print(i, msetrain, msetest, acc_train1, acc_test1, 'rejected')
-                print(sum_value)
+                #print(sum_value)
                 # mse_train[i] = msetrain
                 # mse_test[i] = msetest
                 # acc_train[i,] = acc_train1
