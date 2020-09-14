@@ -380,9 +380,11 @@ class ptReplica(multiprocessing.Process):
                 diff_prop = first - second
                 diff_prop = diff_prop
                 langevin_count = langevin_count + 1
+                print('langevin')
             else:
                 diff_prop = 0
                 w_proposal = cae.addnoiseandcopy(0, step_w)  # np.random.normal(w, step_w, w_size)
+                print('random')
 
             [likelihood_proposal, pred_train, msetrain] = self.likelihood_func(cae, train, w, tau_sq=1)
             [likelihood_ignore, pred_test, msetest] = self.likelihood_func(cae, test, w, tau_sq=1)
