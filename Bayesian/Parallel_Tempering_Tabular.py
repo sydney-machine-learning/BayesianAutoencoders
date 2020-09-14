@@ -62,8 +62,8 @@ swap_interval = 3
 shape = 28
 no_samples = 1600
 noise = 0.05
-in_shape = 500
-enc_shape = 300
+in_shape = 3
+enc_shape = 2
 use_dataset = 1
 
 
