@@ -64,7 +64,7 @@ no_samples = 1600
 noise = 0.05
 in_shape = 3
 enc_shape = 2
-use_dataset = 1
+use_dataset = int(input("Enter dataset to use: 1. Swiss Roll 2. Madelon Dataset "))
 
 
 
@@ -1160,7 +1160,6 @@ class ParallelTempering:
 
 
 def main():
-    use_dataset = int(input("Enter dataset to use: 1. Swiss Roll 2. Madelon Dataset "))
     numSamples = int(input("Enter no of samples: "))
     # swap_interval = int(swap_ratio * numSamples / num_chains)
     problemfolder = 'results'
