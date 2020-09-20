@@ -445,7 +445,7 @@ class ptReplica(multiprocessing.Process):
             # print(sum_value)
             #scaling = 0.999769768
             #sum_value *= math.log10(scaling)
-            sum_value*=0.0001
+            #sum_value*=0.0001
             # print(sum_value)
             u = np.log(random.uniform(0, 1))
             # print(u)
