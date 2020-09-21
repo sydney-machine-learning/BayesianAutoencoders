@@ -385,6 +385,8 @@ class ptReplica(multiprocessing.Process):
                 sigma_sq = step_w
                 first = -0.5 * np.sum(wc_delta * wc_delta) / sigma_sq  # this is wc_delta.T  *  wc_delta /sigma_sq
                 second = -0.5 * np.sum(wp_delta * wp_delta) / sigma_sq
+                print('first', first)
+                print('second', second)
                 diff_prop = first - second
                 diff_prop = diff_prop
                 langevin_count = langevin_count + 1
@@ -444,7 +446,7 @@ class ptReplica(multiprocessing.Process):
             #except OverflowError as e:
                 #sum_value = 1
             sum_value = diff_likelihood + diff_prior + diff_prop
-            print(sum_value)
+            #print(sum_value)
             #scaling = 0.999769768
             #sum_value *= math.log10(scaling)
             #sum_value*=0.0001
