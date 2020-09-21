@@ -444,7 +444,7 @@ class ptReplica(multiprocessing.Process):
             #except OverflowError as e:
                 #sum_value = 1
             sum_value = diff_likelihood + diff_prior + diff_prop
-            # print(sum_value)
+            print(sum_value)
             #scaling = 0.999769768
             #sum_value *= math.log10(scaling)
             #sum_value*=0.0001
