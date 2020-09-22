@@ -137,6 +137,7 @@ class Model(nn.Module):
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(64, enc_shape),
+            nn.Sigmoid()
         )
 
         self.decode = nn.Sequential(
@@ -150,6 +151,7 @@ class Model(nn.Module):
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(128, in_shape)
+            nn.Sigmoid()
         )
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
