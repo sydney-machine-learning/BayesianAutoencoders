@@ -150,7 +150,7 @@ class Model(nn.Module):
             #nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
-            nn.Linear(128, in_shape)
+            nn.Linear(128, in_shape),
             nn.Sigmoid()
         )
 
