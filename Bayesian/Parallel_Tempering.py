@@ -420,8 +420,8 @@ class ptReplica(multiprocessing.Process):
                 wc_delta = (cae.getparameters(w) - cae.getparameters(w_prop_gd))
                 wp_delta = (cae.getparameters(w_proposal) - cae.getparameters(w_gd))
                 sigma_sq = step_w
-                print(wc_delta)
-                print(wp_delta)
+                #print(wc_delta)
+                #print(wp_delta)
                 first = -0.5 * np.sum(wc_delta * wc_delta) / sigma_sq  # this is wc_delta.T  *  wc_delta /sigma_sq
                 second = -0.5 * np.sum(wp_delta * wp_delta) / sigma_sq
                 diff_prop = first - second
@@ -478,6 +478,7 @@ class ptReplica(multiprocessing.Process):
             #    mh_prob = 1
 
             sum_value = diff_likelihood + diff_prior + diff_prop
+            print(sum_value)
             u = np.log(random.uniform(0, 1))
 
             sum_value_array[i] = sum_value
