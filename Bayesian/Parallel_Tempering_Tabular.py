@@ -151,10 +151,10 @@ class Model(nn.Module):
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(128, in_shape),
-            nn.Sigmoid()
-            nn.Sigmoid()
-            nn.Sigmoid()
-            nn.Sigmoid()
+            nn.Sigmoid(),
+            nn.Sigmoid(),
+            nn.Sigmoid(),
+            nn.Sigmoid(),
             nn.Sigmoid()
         )
 
