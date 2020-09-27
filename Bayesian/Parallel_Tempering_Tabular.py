@@ -385,8 +385,8 @@ class ptReplica(multiprocessing.Process):
                 wc_delta = (cae.getparameters(w) - cae.getparameters(w_prop_gd))
                 wp_delta = (cae.getparameters(w_proposal) - cae.getparameters(w_gd))
                 sigma_sq = step_w
-                print(wc_delta)
-                print(wp_delta)
+                #print(wc_delta)
+                #print(wp_delta)
                 first = -0.5 * np.sum(wc_delta * wc_delta) / sigma_sq  # this is wc_delta.T  *  wc_delta /sigma_sq
                 second = -0.5 * np.sum(wp_delta * wp_delta) / sigma_sq
                 #print('first', first)
@@ -449,6 +449,9 @@ class ptReplica(multiprocessing.Process):
                 #sum_value = min(1, math.exp(diff_likelihood + diff_prior + diff_prop))
             #except OverflowError as e:
                 #sum_value = 1
+            print('diff_likelihood', diff_likelihood)
+            print('diff_prior', diff_prior)
+            print('diff_prop', diff_prop)
             sum_value = diff_likelihood + diff_prior + diff_prop
             print(sum_value)
             #scaling = 0.999769768
