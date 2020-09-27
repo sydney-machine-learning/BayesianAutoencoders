@@ -128,15 +128,15 @@ class Model(nn.Module):
         self.los = 0
         self.criterion = torch.nn.MSELoss()
         self.encode = nn.Sequential(
-            nn.Linear(in_shape, 128),
+            nn.Linear(in_shape, 3),
             #nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
-            nn.Linear(128, 64),
+            nn.Linear(3, 3),
             #nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
-            nn.Linear(64, enc_shape),
+            nn.Linear(3, enc_shape),
             nn.Sigmoid()
         )
 
@@ -151,10 +151,6 @@ class Model(nn.Module):
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(128, in_shape),
-            nn.Sigmoid(),
-            nn.Sigmoid(),
-            nn.Sigmoid(),
-            nn.Sigmoid(),
             nn.Sigmoid()
         )
 
