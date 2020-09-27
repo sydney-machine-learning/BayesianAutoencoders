@@ -128,29 +128,29 @@ class Model(nn.Module):
         self.los = 0
         self.criterion = torch.nn.MSELoss()
         self.encode = nn.Sequential(
-            nn.Linear(in_shape, 3),
+            nn.Linear(in_shape, 450),
             #nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
-            nn.Linear(3, 3),
+            nn.Linear(450, 400),
             #nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
-            nn.Linear(3, enc_shape),
+            nn.Linear(400, enc_shape),
             nn.Sigmoid()
         )
 
         self.decode = nn.Sequential(
             nn.BatchNorm1d(enc_shape),
-            nn.Linear(enc_shape, 64),
+            nn.Linear(enc_shape, 400),
             #nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
-            nn.Linear(64, 128),
+            nn.Linear(400, 450),
             #nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
-            nn.Linear(128, in_shape),
+            nn.Linear(450, in_shape),
             nn.Sigmoid()
         )
 
