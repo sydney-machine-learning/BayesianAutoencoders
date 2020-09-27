@@ -152,6 +152,10 @@ class Model(nn.Module):
             nn.Dropout(0.2),
             nn.Linear(128, in_shape),
             nn.Sigmoid()
+            nn.Sigmoid()
+            nn.Sigmoid()
+            nn.Sigmoid()
+            nn.Sigmoid()
         )
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
