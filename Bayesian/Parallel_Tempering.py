@@ -476,7 +476,9 @@ class ptReplica(multiprocessing.Process):
             #    mh_prob = min(1, math.exp(diff_likelihood))
             # except OverflowError as e:
             #    mh_prob = 1
-
+            print('diff_likelihood', diff_likelihood)
+            print('diff_prior', diff_prior)
+            print('diff_likelihood', diff_prop)
             sum_value = diff_likelihood + diff_prior + diff_prop
             print(sum_value)
             u = np.log(random.uniform(0, 1))
