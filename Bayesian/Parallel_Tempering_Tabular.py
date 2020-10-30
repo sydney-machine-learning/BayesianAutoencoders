@@ -10,10 +10,12 @@ cae with mcmc in torch
 #  %reset -sf
 
 
-import torchvision
-import torch.nn.functional as F
-import torchvision.transforms as transforms
-from torchvision import datasets
+#import torchvision
+#import torch.nn.functional as F
+#import torchvision.transforms as transforms
+#from torchvision import datasets
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.datasets import make_swiss_roll
 import torch
 import torch.nn as nn
 import numpy as np
@@ -26,8 +28,16 @@ import times
 import multiprocessing
 import urllib.request as urllib2
 import mpl_toolkits.mplot3d.axes3d as p3
-from sklearn.datasets import make_swiss_roll
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split, GridSearchCV
+from pprint import pprint
+from sklearn.metrics import classification_report, confusion_matrix, log_loss
+
 
 device = "cpu"
 
@@ -52,32 +62,34 @@ no_channels = 1
 size_train = 900
 size_test = 700
 step_size = 0.005
-num_chains = 6  # equal to no of cores available
+num_chains = 8  # equal to no of cores available
 pt_samples = 0.50
-langevin_step = 50
+langevin_step = 0
 mt_val = 2
 swap_ratio = 0.002
-maxtemp = 2
+maxtemp = 8
 swap_interval = 3
 shape = 28
 no_samples = 1600
 noise = 0.05
-use_dataset = int(input("Enter dataset to use: 1. Swiss Roll 2. Madelon Dataset "))
-if use_dataset==1:
+use_dataset = 2
+#use_dataset = int(input("Enter dataset to use: 1. Swiss Roll 2. Madelon Dataset "))
+if use_dataset == 1:
     in_shape = 3
     enc_shape = 2
 else:
-    in_shape= 500
-    enc_shape= 300
+    in_shape = 500
+    enc_shape = 300
 
-
-
+train_data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.data'
+madelon_train_sample = np.loadtxt(urllib2.urlopen(train_data_url))
+train_data_labels_url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.labels'
+madelon_train_sample_label = np.loadtxt(urllib2.urlopen(train_data_labels_url))
 
 def data_load(data='train'):
-
-
-    if use_dataset==1:
+    if use_dataset == 1:
         if data == 'test':
+
             X, colors = make_swiss_roll(no_samples, noise)
             X = MinMaxScaler().fit_transform(X)
             X = torch.from_numpy(X).to(device)
@@ -99,7 +111,7 @@ def data_load(data='train'):
         if data == 'test':
             test_data_url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_test.data'
             X = np.loadtxt(urllib2.urlopen(test_data_url))
-            X = MinMaxScaler().fit_transform(X)
+            X = StandardScaler().fit_transform(X)
             X = torch.from_numpy(X).to(device)
             # X = torch.Tensor(X)
             # X= X.double()
@@ -108,8 +120,8 @@ def data_load(data='train'):
             return X
         else:
             train_data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.data'
-            X= np.loadtxt(urllib2.urlopen(train_data_url))
-            X = MinMaxScaler().fit_transform(X)
+            X = np.loadtxt(urllib2.urlopen(train_data_url))
+            X = StandardScaler().fit_transform(X)
             X = torch.from_numpy(X).to(device)
             # X = torch.Tensor(X)
             # X= X.double()
@@ -129,29 +141,29 @@ class Model(nn.Module):
         self.criterion = torch.nn.MSELoss()
         self.encode = nn.Sequential(
             nn.Linear(in_shape, 450),
-            #nn.ReLU(True),
+            # nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(450, 400),
-            #nn.ReLU(True),
+            # nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(400, enc_shape),
-            nn.Sigmoid()
+            #nn.Sigmoid()
         )
 
         self.decode = nn.Sequential(
             nn.BatchNorm1d(enc_shape),
             nn.Linear(enc_shape, 400),
-            #nn.ReLU(True),
+            # nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(400, 450),
-            #nn.ReLU(True),
+            # nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(450, in_shape),
-            nn.Sigmoid()
+            #nn.Sigmoid()
         )
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
@@ -242,7 +254,7 @@ class ptReplica(multiprocessing.Process):
         self.use_langevin_gradients = use_langevin_gradients
         self.sgd_depth = 1  # Keep as 1
         self.batch_size = batch_size
-        self.l_prob = 0.7
+        self.l_prob = 0.25
         self.adapttemp = temperature
         self.temperature = temperature
         self.train_loss = 0
@@ -385,20 +397,20 @@ class ptReplica(multiprocessing.Process):
                 wc_delta = (cae.getparameters(w) - cae.getparameters(w_prop_gd))
                 wp_delta = (cae.getparameters(w_proposal) - cae.getparameters(w_gd))
                 sigma_sq = step_w
-                #print(wc_delta)
-                #print(wp_delta)
+                # print(wc_delta)
+                # print(wp_delta)
                 first = -0.5 * np.sum(wc_delta * wc_delta) / sigma_sq  # this is wc_delta.T  *  wc_delta /sigma_sq
                 second = -0.5 * np.sum(wp_delta * wp_delta) / sigma_sq
-                #print('first', first)
-                #print('second', second)
+                # print('first', first)
+                # print('second', second)
                 diff_prop = first - second
                 diff_prop = diff_prop
                 langevin_count = langevin_count + 1
-                #print('langevin')
+                # print('langevin')
             else:
                 diff_prop = 0
                 w_proposal = cae.addnoiseandcopy(0, step_w)  # np.random.normal(w, step_w, w_size)
-                #print('random')
+                # print('random')
 
             [likelihood_proposal, pred_train, msetrain] = self.likelihood_func(cae, train, w, tau_sq=1)
             [likelihood_ignore, pred_test, msetest] = self.likelihood_func(cae, test, w, tau_sq=1)
@@ -445,18 +457,18 @@ class ptReplica(multiprocessing.Process):
             #    mh_prob = min(1, math.exp(diff_likelihood))
             # except OverflowError as e:
             #    mh_prob = 1
-            #try:
-                #sum_value = min(1, math.exp(diff_likelihood + diff_prior + diff_prop))
-            #except OverflowError as e:
-                #sum_value = 1
-            #print('diff_likelihood', diff_likelihood)
-            #print('diff_prior', diff_prior)
-            #print('diff_prop', diff_prop)
+            # try:
+            # sum_value = min(1, math.exp(diff_likelihood + diff_prior + diff_prop))
+            # except OverflowError as e:
+            # sum_value = 1
+            # print('diff_likelihood', diff_likelihood)
+            # print('diff_prior', diff_prior)
+            # print('diff_prop', diff_prop)
             sum_value = diff_likelihood + diff_prior + diff_prop
-            #print(sum_value)
-            #scaling = 0.999769768
-            #sum_value *= math.log10(scaling)
-            #sum_value*=0.0001
+            # print(sum_value)
+            # scaling = 0.999769768
+            # sum_value *= math.log10(scaling)
+            # sum_value*=0.0001
             # print(sum_value)
             u = np.log(random.uniform(0, 1))
             # print(u)
@@ -485,7 +497,7 @@ class ptReplica(multiprocessing.Process):
                 # print('prior',diff_prior)
                 # print('prop',diff_prop)
                 print(i, msetrain, msetest, acc_train1, acc_test1, 'accepted')
-                #print(sum_value)
+                # print(sum_value)
                 mse_train[i] = msetrain
                 mse_test[i] = msetest
                 acc_train[i,] = acc_train1
@@ -500,7 +512,7 @@ class ptReplica(multiprocessing.Process):
                 # print('prior',diff_prior)
                 # print('prop',diff_prop)
                 print(i, msetrain, msetest, acc_train1, acc_test1, 'rejected')
-                #print(sum_value)
+                # print(sum_value)
                 # mse_train[i] = msetrain
                 # mse_test[i] = msetest
                 # acc_train[i,] = acc_train1
@@ -514,9 +526,9 @@ class ptReplica(multiprocessing.Process):
             # print(len(ll))
             # print(ll[0])
             weight_array[i] = ll[0]
-            weight_array1[i] = ll[100]
-            weight_array3[i] = ll[5000]
-            weight_array2[i] = ll[10000]
+            weight_array1[i] = ll[1000]
+            weight_array3[i] = ll[3500]
+            weight_array2[i] = ll[16000]
 
             if (i + 1) % self.swap_interval == 0:
                 param = np.concatenate([np.asarray([cae.getparameters(w)]).reshape(-1), np.asarray([eta]).reshape(-1),
@@ -597,7 +609,43 @@ class ptReplica(multiprocessing.Process):
         # self.outres1.write(str(temp) + ' % was Langevin')
         # self.outres1.write('\n')
 
-        ###################################VISUALIZATION OF RESULT#############################################
+        ###################################Classification#############################################
+        global madelon_train_sample
+        madelon_train_sample = StandardScaler().fit_transform(madelon_train_sample)
+        madelon_train_sample = torch.from_numpy(madelon_train_sample).to(device)
+        madelon_train_sample = copy.deepcopy(cae.forward(madelon_train_sample).detach())
+        madelon_train_sample = madelon_train_sample.data
+
+        mad_X_train, mad_X_test, mad_y_train, mad_y_test = train_test_split(madelon_train_sample, \
+                                                                            madelon_train_sample_label)
+        #using out of the box default parameters provided in scikit learn library
+        names_of_classifiers = ['LogisticRegression', 'KNeighbors', 'DecisionTree', 'SVClassifier']
+
+        classifiers = [
+            LogisticRegression(n_jobs=-1, random_state=42),
+            KNeighborsClassifier(n_jobs=-1),
+            DecisionTreeClassifier(random_state=42),
+            SVC(random_state=42)]
+
+        mad_raw_test_scores = {}
+        mad_raw_train_scores = {}
+        mad_raw_y_preds = {}
+
+        for name, clfr in zip(names_of_classifiers, classifiers):
+            clfr.fit(mad_X_train, mad_y_train)
+
+            train_score = clfr.score(mad_X_train, mad_y_train)
+            test_score = clfr.score(mad_X_test, mad_y_test)
+            y_pred = clfr.predict(mad_X_test)
+
+            mad_raw_train_scores[name] = train_score
+            mad_raw_test_scores[name] = test_score
+            mad_raw_y_preds[name] = y_pred
+
+        print('Test', mad_raw_test_scores)
+        print('Train',mad_raw_train_scores)
+
+
         ##################################################################################################################
         # torch.save(cae.state_dict(), PATH)
         return acc_train, acc_test, mse_train, mse_test, sum_value_array, weight_array, weight_array1, weight_array2, weight_array3
@@ -956,13 +1004,12 @@ class ParallelTempering:
         plt.title("Sum Value Single Chain")
         plt.savefig(self.path + '/sum_value_single_chain.png')
         plt.clf()
-        
+
         num_bins = 10
         n, bins, patches = plt.hist(sum_val_array_single_chain_plot, num_bins, facecolor='blue', alpha=0.5)
         plt.title("Sum Value Histogram")
         plt.savefig(self.path + '/sum_value_histogram.png')
         plt.clf()
-
 
         color = 'tab:red'
         plt.plot(x2, acc_train_single_chain_plot, label="Train", color=color)
