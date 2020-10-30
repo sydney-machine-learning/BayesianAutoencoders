@@ -111,7 +111,7 @@ def data_load(data='train'):
         if data == 'test':
             test_data_url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_test.data'
             X = np.loadtxt(urllib2.urlopen(test_data_url))
-            X = StandardScaler().fit_transform(X)
+            X = MinMaxScaler().fit_transform(X)
             X = torch.from_numpy(X).to(device)
             # X = torch.Tensor(X)
             # X= X.double()
@@ -121,7 +121,7 @@ def data_load(data='train'):
         else:
             train_data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.data'
             X = np.loadtxt(urllib2.urlopen(train_data_url))
-            X = StandardScaler().fit_transform(X)
+            X = MinMaxScaler().fit_transform(X)
             X = torch.from_numpy(X).to(device)
             # X = torch.Tensor(X)
             # X= X.double()
@@ -611,11 +611,10 @@ class ptReplica(multiprocessing.Process):
 
         ###################################Classification#############################################
         global madelon_train_sample
-        madelon_train_sample = StandardScaler().fit_transform(madelon_train_sample)
+        madelon_train_sample = MinMaxScaler().fit_transform(madelon_train_sample)
         madelon_train_sample = torch.from_numpy(madelon_train_sample).to(device)
         madelon_train_sample = copy.deepcopy(cae.forward(madelon_train_sample).detach())
         madelon_train_sample = madelon_train_sample.data
-
         mad_X_train, mad_X_test, mad_y_train, mad_y_test = train_test_split(madelon_train_sample, \
                                                                             madelon_train_sample_label)
         #using out of the box default parameters provided in scikit learn library
