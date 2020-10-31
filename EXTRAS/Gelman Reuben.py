@@ -105,7 +105,7 @@ weight100 = weight100.T
 weight5000 = weight5000.T
 weight10000 = weight10000.T
 
-data = np.stack((weight0, weight100, weight5000, weight10000), axis=2)
+data = np.stack((weight0, weight100, weight5000, weight10000), axis=0)
 
 Nchains, Nsamples, Npars = data.shape
 
