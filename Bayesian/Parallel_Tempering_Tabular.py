@@ -609,9 +609,9 @@ class ptReplica(multiprocessing.Process):
         # self.outres1.write(str(temp) + ' % was Langevin')
         # self.outres1.write('\n')
 
-        ###################################Classification#############################################
+        ###################################Classification##########################################################################################################################
         global madelon_train_sample
-        madelon_train_sample = MinMaxScaler().fit_transform(madelon_train_sample)
+        madelon_train_sample = StandardScaler().fit_transform(madelon_train_sample)
         madelon_train_sample = torch.from_numpy(madelon_train_sample).to(device)
         madelon_train_sample = copy.deepcopy(cae.forward(madelon_train_sample).detach())
         madelon_train_sample = madelon_train_sample.data
@@ -645,7 +645,7 @@ class ptReplica(multiprocessing.Process):
         print('Train',mad_raw_train_scores)
 
 
-        ##################################################################################################################
+        ##################################################################################################################################################################################
         # torch.save(cae.state_dict(), PATH)
         return acc_train, acc_test, mse_train, mse_test, sum_value_array, weight_array, weight_array1, weight_array2, weight_array3
 
