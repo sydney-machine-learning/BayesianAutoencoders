@@ -68,7 +68,7 @@ langevin_step = 30
 mt_val = 2
 swap_ratio = 0.002
 maxtemp = 8
-swap_interval = 3
+swap_interval = 20
 shape = 28
 no_samples = 1600
 noise = 0.05
@@ -788,10 +788,10 @@ class ParallelTempering:
         self.maxlim_param = np.repeat([100], self.num_param)
         for i in range(0, self.num_chains):
             #w = np.random.randn(self.num_param)
-            r1= -2
-            r2 = 2
-            (r1 - r2) * torch.rand(self.num_param) + r2
-            w= torch.rand(self.num_param)
+            r1= -1
+            r2= 1
+            w = (r1-r2) * torch.rand(self.num_param) + r2
+            w = w[torch.randperm(w.size()[0])]
             w = self.cae.dictfromlist(w)
             self.chains.append(
                 ptReplica(self.use_langevin_gradients, self.learn_rate, w, self.minlim_param, self.maxlim_param,
