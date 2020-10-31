@@ -642,7 +642,7 @@ class ptReplica(multiprocessing.Process):
             mad_raw_y_preds[name] = y_pred
 
         print('Test', mad_raw_test_scores)
-        print('Train',mad_raw_train_scores)
+        #print('Train',mad_raw_train_scores)
 
 
         ##################################################################################################################################################################################
@@ -787,7 +787,9 @@ class ParallelTempering:
         self.minlim_param = np.repeat([-100], self.num_param)  # priors for nn weights
         self.maxlim_param = np.repeat([100], self.num_param)
         for i in range(0, self.num_chains):
-            w = np.random.randn(self.num_param)
+            #w = np.random.randn(self.num_param)
+            w = np.zeros(self.num_param)
+            torch.nn.init.uniform(w, a=0, b=2)
             w = self.cae.dictfromlist(w)
             self.chains.append(
                 ptReplica(self.use_langevin_gradients, self.learn_rate, w, self.minlim_param, self.maxlim_param,
