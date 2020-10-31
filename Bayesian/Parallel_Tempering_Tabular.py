@@ -788,8 +788,7 @@ class ParallelTempering:
         self.maxlim_param = np.repeat([100], self.num_param)
         for i in range(0, self.num_chains):
             #w = np.random.randn(self.num_param)
-            w = np.zeros(self.num_param)
-            w= torch.nn.init.uniform(w, a=-1, b=1)
+            w= torch.rand(self.num_param)
             w = self.cae.dictfromlist(w)
             self.chains.append(
                 ptReplica(self.use_langevin_gradients, self.learn_rate, w, self.minlim_param, self.maxlim_param,
