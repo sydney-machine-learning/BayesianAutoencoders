@@ -621,7 +621,7 @@ class ptReplica(multiprocessing.Process):
         names_of_classifiers = ['LogisticRegression', 'KNeighbors', 'DecisionTree', 'SVClassifier']
 
         classifiers = [
-            LogisticRegression(n_jobs=-1, random_state=42),
+            LogisticRegression(n_jobs=-1, random_state=42,max_iter=200),
             KNeighborsClassifier(n_jobs=-1),
             DecisionTreeClassifier(random_state=42),
             SVC(random_state=42)]
