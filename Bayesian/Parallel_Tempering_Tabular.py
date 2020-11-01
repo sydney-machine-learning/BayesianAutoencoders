@@ -280,6 +280,7 @@ class ptReplica(multiprocessing.Process):
         # fx = [x * batch_size for x in fx]
         mse = torch.mean(torch.Tensor(fx))
         loss = torch.as_tensor(np.sum(-0.5 * np.log(2 * math.pi * tau_sq) - 0.5 * np.square(fx) / tau_sq))
+        print(loss)
         # print(type(loss))
         return [torch.sum(loss) / self.adapttemp, fx, mse]
 
