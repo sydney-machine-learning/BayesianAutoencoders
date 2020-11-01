@@ -67,8 +67,8 @@ pt_samples = 0.50
 langevin_step = 30
 mt_val = 2
 swap_ratio = 0.002
-maxtemp = 8
-swap_interval = 20
+maxtemp = 2
+swap_interval = 10
 shape = 28
 no_samples = 1600
 noise = 0.05
@@ -280,7 +280,6 @@ class ptReplica(multiprocessing.Process):
         # fx = [x * batch_size for x in fx]
         mse = torch.mean(torch.Tensor(fx))
         loss = torch.as_tensor(np.sum(-0.5 * np.log(2 * math.pi * tau_sq) - 0.5 * np.square(fx) / tau_sq))
-        print(loss)
         # print(type(loss))
         return [torch.sum(loss) / self.adapttemp, fx, mse]
 
@@ -571,6 +570,10 @@ class ptReplica(multiprocessing.Process):
         file_name = self.path + '/sum_value_' + str(self.temperature) + '.txt'
         np.savetxt(file_name, sum_value_array, fmt='%1.2f')
 
+        file_name = self.path + '/likelihood_value_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, likelihood_array, fmt='%1.2f')
+
+
         file_name = self.path + '/weight[0]_' + str(self.temperature) + '.txt'
         np.savetxt(file_name, weight_array, fmt='%1.2f')
 
@@ -789,9 +792,9 @@ class ParallelTempering:
         self.maxlim_param = np.repeat([100], self.num_param)
         for i in range(0, self.num_chains):
             #w = np.random.randn(self.num_param)
-            r1= -1
-            r2= 1
-            w = (r1-r2) * torch.rand(self.num_param) + r2
+            #r1= -1
+            #r2= 1
+            w = i * torch.rand(self.num_param) - i
             w = w[torch.randperm(w.size()[0])]
             w = self.cae.dictfromlist(w)
             self.chains.append(
@@ -929,6 +932,7 @@ class ParallelTempering:
         mse_test = np.zeros((self.num_chains, self.NumSamples))
         acc_test = np.zeros((self.num_chains, self.NumSamples))
         sum_val_array = np.zeros((self.num_chains, self.NumSamples))
+        likelihood_val_array = np.zeros((self.num_chains, self.NumSamples))
 
         weight_ar = np.zeros((self.num_chains, self.NumSamples))
         weight_ar1 = np.zeros((self.num_chains, self.NumSamples))
@@ -973,6 +977,11 @@ class ParallelTempering:
             dat = np.loadtxt(file_name)
             sum_val_array[i, :] = dat
 
+            file_name = self.path + '/likelihood_value_' + str(self.temperatures[i]) + '.txt'
+            dat = np.loadtxt(file_name)
+            likelihood_val_array[i, :] = dat
+
+
             file_name = self.path + '/weight[0]_' + str(self.temperatures[i]) + '.txt'
             dat = np.loadtxt(file_name)
             weight_ar[i, :] = dat
@@ -998,6 +1007,7 @@ class ParallelTempering:
         acc_train_single_chain_plot = acc_train[0, :]
         acc_test_single_chain_plot = acc_test[0, :]
         sum_val_array_single_chain_plot = sum_val_array[0]
+        likelihood_val_array_single_chain_plot = likelihood_val_array[0]
 
         # path = 'cifar_torch/CAE/graphs'
 
@@ -1007,6 +1017,12 @@ class ParallelTempering:
         plt.legend(loc='upper right')
         plt.title("Sum Value Single Chain")
         plt.savefig(self.path + '/sum_value_single_chain.png')
+        plt.clf()
+
+        plt.plot(x2, likelihood_val_array_single_chain_plot, label='Sum Value')
+        plt.legend(loc='upper right')
+        plt.title("Likelihood Value Single Chain")
+        plt.savefig(self.path + '/likelihood_value_single_chain.png')
         plt.clf()
 
         num_bins = 10
