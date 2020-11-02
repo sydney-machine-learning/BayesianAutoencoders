@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 no_chains = int(input("No of chains: "))
 no_samples=int(input("Enter no of samples per chain: "))
-burnin = 0.53
+burnin = 0.5
 no_samples_b = int(no_samples-no_samples*burnin)
 weight0 =np.zeros((no_chains, no_samples_b))
 weight100 =np.zeros((no_chains, no_samples_b))
@@ -44,6 +44,7 @@ for i in range(no_chains):
     plt.plot(x1, weight0[i], label='Weight[0]')
     plt.legend(loc='upper right')
     plt.title("Weight[0]_Chain"+str(temp[i]) + " Trace")
+    plt.ylim(-1,1)
     plt.savefig(
         'gelman_reuben/weight[0]_Chain' + str(temp[i])+'_samples.png')
     plt.clf()
@@ -58,6 +59,7 @@ for i in range(no_chains):
     plt.plot(x1, weight100[i], label='Weight[100]')
     plt.legend(loc='upper right')
     plt.title("Weight[100]_Chain" + str(temp[i]) + " Trace")
+    plt.ylim(-1,1)
     plt.savefig(
         'gelman_reuben/weight[100]_Chain' + str(temp[i]) + '_samples.png')
     plt.clf()
@@ -72,6 +74,7 @@ for i in range(no_chains):
     plt.plot(x1, weight5000[i], label='Weight[5000]')
     plt.legend(loc='upper right')
     plt.title("Weight[5000]_Chain" + str(temp[i]) + " Trace")
+    plt.ylim(-1,1)
     plt.savefig(
         'gelman_reuben/weight[5000]_Chain' + str(temp[i]) + '_samples.png')
     plt.clf()
@@ -86,6 +89,7 @@ for i in range(no_chains):
     plt.plot(x1, weight10000[i], label='Weight[10000]')
     plt.legend(loc='upper right')
     plt.title("Weight[10000]_Chain" + str(temp[i]) + " Trace")
+    plt.ylim(-1,1)
     plt.savefig(
         'gelman_reuben/weight[10000]_Chain' + str(temp[i]) + '_samples.png')
     plt.clf()
@@ -97,6 +101,136 @@ for i in range(no_chains):
         'gelman_reuben/weight[10000]_Chain' + str(temp[i]) + '_hist.png')
     plt.clf()
 
+x1 = np.linspace(0, no_samples_b, num=no_samples_b)
+
+plt.plot(x1, weight0[0], label=str(temp[0]))
+plt.plot(x1, weight0[1], label=str(temp[1]))
+plt.plot(x1, weight0[2], label=str(temp[2]))
+plt.plot(x1, weight0[3], label=str(temp[3]))
+plt.plot(x1, weight0[4], label=str(temp[4]))
+plt.plot(x1, weight0[5], label=str(temp[5]))
+plt.plot(x1, weight0[6], label=str(temp[6]))
+plt.plot(x1, weight0[7], label=str(temp[7]))
+#plt.legend(loc='upper left')
+plt.title("Weight[0]_Chain" +" Trace")
+#plt.ylim(-1,1)
+plt.tight_layout()
+plt.savefig(
+'gelman_reuben/weight[0]_Chain' +'_samples.png')
+plt.clf()
+
+plt.plot(x1, weight100[0], label=str(temp[0]))
+plt.plot(x1, weight100[1], label=str(temp[1]))
+plt.plot(x1, weight100[2], label=str(temp[2]))
+plt.plot(x1, weight100[3], label=str(temp[3]))
+plt.plot(x1, weight100[4], label=str(temp[4]))
+plt.plot(x1, weight100[5], label=str(temp[5]))
+plt.plot(x1, weight100[6], label=str(temp[6]))
+plt.plot(x1, weight100[7], label=str(temp[7]))
+#plt.legend(loc='upper left')
+plt.title("Weight[0]_Chain" +" Trace")
+#plt.ylim(-1,1)
+plt.tight_layout()
+plt.savefig(
+'gelman_reuben/weight[100]_Chain' +'_samples.png')
+plt.clf()
+
+plt.plot(x1, weight5000[0], label=str(temp[0]))
+plt.plot(x1, weight5000[1], label=str(temp[1]))
+plt.plot(x1, weight5000[2], label=str(temp[2]))
+plt.plot(x1, weight5000[3], label=str(temp[3]))
+plt.plot(x1, weight5000[4], label=str(temp[4]))
+plt.plot(x1, weight5000[5], label=str(temp[5]))
+plt.plot(x1, weight5000[6], label=str(temp[6]))
+plt.plot(x1, weight5000[7], label=str(temp[7]))
+#plt.legend(loc='upper left')
+plt.title("Weight[0]_Chain" +" Trace")
+#plt.ylim(-1,1)
+plt.tight_layout()
+plt.savefig(
+'gelman_reuben/weight[5000]_Chain' +'_samples.png')
+plt.clf()
+
+plt.plot(x1, weight10000[0], label='Weight[10000]'+str(temp[0]))
+plt.plot(x1, weight10000[1], label='Weight[10000]'+str(temp[1]))
+plt.plot(x1, weight10000[2], label='Weight[10000]'+str(temp[2]))
+plt.plot(x1, weight10000[3], label='Weight[10000]'+str(temp[3]))
+plt.plot(x1, weight10000[4], label='Weight[10000]'+str(temp[4]))
+plt.plot(x1, weight10000[5], label='Weight[10000]'+str(temp[5]))
+plt.plot(x1, weight10000[6], label='Weight[10000]'+str(temp[6]))
+plt.plot(x1, weight10000[7], label='Weight[10000]'+str(temp[7]))
+#plt.legend(loc='upper left')
+plt.title("Weight[10000]_Chain" +" Trace")
+#plt.ylim(-1,1)
+plt.tight_layout()
+plt.savefig(
+'gelman_reuben/weight[10000]_Chain' +'_samples.png')
+plt.clf()
+
+plt.plot(x1, weight0[0], label=str(temp[0]))
+plt.plot(x1, weight0[1], label=str(temp[1]))
+plt.plot(x1, weight0[2], label=str(temp[2]))
+plt.plot(x1, weight0[3], label=str(temp[3]))
+plt.plot(x1, weight0[4], label=str(temp[4]))
+plt.plot(x1, weight0[5], label=str(temp[5]))
+plt.plot(x1, weight0[6], label=str(temp[6]))
+plt.plot(x1, weight0[7], label=str(temp[7]))
+#plt.legend(loc='upper left')
+plt.title("Weight[0]_Chain*" +" Trace")
+#plt.ylim(-1,1)
+plt.tight_layout()
+plt.savefig(
+'gelman_reuben/weight[0]_Chain' +'_samples.png')
+plt.clf()
+
+plt.plot(x1, weight100[0], label=str(temp[0]))
+plt.plot(x1, weight100[1], label=str(temp[1]))
+plt.plot(x1, weight100[2], label=str(temp[2]))
+plt.plot(x1, weight100[3], label=str(temp[3]))
+plt.plot(x1, weight100[4], label=str(temp[4]))
+plt.plot(x1, weight100[5], label=str(temp[5]))
+plt.plot(x1, weight100[6], label=str(temp[6]))
+plt.plot(x1, weight100[7], label=str(temp[7]))
+#plt.legend(loc='upper left')
+plt.title("Weight[100]_Chain*" +" Trace")
+#plt.ylim(-1,1)
+plt.tight_layout()
+plt.savefig(
+'gelman_reuben/weight[100]_Chain' +'_samples.png')
+plt.clf()
+
+plt.plot(x1, weight5000[0], label=str(temp[0]))
+plt.plot(x1, weight5000[1], label=str(temp[1]))
+plt.plot(x1, weight5000[2], label=str(temp[2]))
+plt.plot(x1, weight5000[3], label=str(temp[3]))
+plt.plot(x1, weight5000[4], label=str(temp[4]))
+plt.plot(x1, weight5000[5], label=str(temp[5]))
+plt.plot(x1, weight5000[6], label=str(temp[6]))
+plt.plot(x1, weight5000[7], label=str(temp[7]))
+#plt.legend(loc='upper left')
+plt.title("Weight[5000]_Chain" +" Trace")
+#plt.ylim(-1,1)
+plt.tight_layout()
+plt.savefig(
+'gelman_reuben/weight[5000]_Chain' +'_samples.png')
+plt.clf()
+
+plt.plot(x1, weight10000[0], label='Weight[10000]'+str(temp[0]))
+plt.plot(x1, weight10000[1], label='Weight[10000]'+str(temp[1]))
+plt.plot(x1, weight10000[2], label='Weight[10000]'+str(temp[2]))
+plt.plot(x1, weight10000[3], label='Weight[10000]'+str(temp[3]))
+plt.plot(x1, weight10000[4], label='Weight[10000]'+str(temp[4]))
+plt.plot(x1, weight10000[5], label='Weight[10000]'+str(temp[5]))
+plt.plot(x1, weight10000[6], label='Weight[10000]'+str(temp[6]))
+plt.plot(x1, weight10000[7], label='Weight[10000]'+str(temp[7]))
+#plt.legend(loc='upper left')
+plt.title("Weight[10000]_Chain" +" Trace")
+#plt.ylim(-1,1)
+plt.tight_layout()
+plt.savefig(
+'gelman_reuben/weight[10000]_Chain' +'_samples.png')
+plt.clf()
+
 
 
 
@@ -105,8 +239,8 @@ weight100 = weight100.T
 weight5000 = weight5000.T
 weight10000 = weight10000.T
 
-data = np.stack((weight0, weight100, weight5000, weight10000), axis=0)
-
+data = np.stack((weight0, weight100, weight5000, weight10000), axis=2)
+#data = np.array([weight0,weight100,weight5000,weight10000])
 Nchains, Nsamples, Npars = data.shape
 
 B_on_n = data.mean(axis=1).var(axis=0)      # variance of in-chain means
