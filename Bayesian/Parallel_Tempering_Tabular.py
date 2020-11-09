@@ -61,7 +61,7 @@ ulg = True
 no_channels = 1
 size_train = 900
 size_test = 700
-step_size = 0.005
+step_size = 0.001
 num_chains = 8  # equal to no of cores available
 pt_samples = 0.50
 langevin_step = 30
@@ -791,11 +791,11 @@ class ParallelTempering:
         self.minlim_param = np.repeat([-100], self.num_param)  # priors for nn weights
         self.maxlim_param = np.repeat([100], self.num_param)
         for i in range(0, self.num_chains):
-            #w = np.random.randn(self.num_param)
+            w = np.random.randn(self.num_param)
             #r1= -1
             #r2= 1
-            w = i * torch.rand(self.num_param) - i
-            w = w[torch.randperm(w.size()[0])]
+            #w = i * torch.rand(self.num_param) - i
+            #w = w[torch.randperm(w.size()[0])]
             w = self.cae.dictfromlist(w)
             self.chains.append(
                 ptReplica(self.use_langevin_gradients, self.learn_rate, w, self.minlim_param, self.maxlim_param,
