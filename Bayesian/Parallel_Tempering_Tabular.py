@@ -37,6 +37,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split, GridSearchCV
 from pprint import pprint
 from sklearn.metrics import classification_report, confusion_matrix, log_loss
+import csv
 
 
 device = "cpu"
@@ -59,11 +60,11 @@ lrate = 0.01
 burnin = 0.25
 ulg = True
 no_channels = 1
-size_train = 900
-size_test = 700
-step_size = 0.002
+#size_train = 900
+#size_test = 700
+step_size = 0.01
 num_chains = 8  # equal to no of cores available
-pt_samples = 0.50
+pt_samples = 1
 langevin_step = 30
 mt_val = 2
 swap_ratio = 0.005
@@ -75,38 +76,35 @@ noise = 0.05
 use_dataset = 2
 #use_dataset = int(input("Enter dataset to use: 1. Swiss Roll 2. Madelon Dataset "))
 if use_dataset == 1:
-    in_shape = 3
-    enc_shape = 2
+    in_shape = 119
+    enc_shape = 60
+    in_one = 100
+    in_two = 80
+
 else:
     in_shape = 500
     enc_shape = 300
+    in_one = 450
+    in_two = 400
+    train_data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.data'
+    train_data_labels_url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.labels'
+    madelon_train_sample = np.loadtxt(urllib2.urlopen(train_data_url))
+    madelon_train_sample_label = np.loadtxt(urllib2.urlopen(train_data_labels_url))
 
-train_data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.data'
-madelon_train_sample = np.loadtxt(urllib2.urlopen(train_data_url))
-train_data_labels_url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.labels'
-madelon_train_sample_label = np.loadtxt(urllib2.urlopen(train_data_labels_url))
+
+
 
 def data_load(data='train'):
     if use_dataset == 1:
+        X = np.loadtxt('Nomao.data')
+        X = MinMaxScaler().fit_transform(X)
+        X = torch.from_numpy(X).to(device)
+        train_data, test_data = train_test_split(X)
         if data == 'test':
-
-            X, colors = make_swiss_roll(no_samples, noise)
-            X = MinMaxScaler().fit_transform(X)
-            X = torch.from_numpy(X).to(device)
-            # X = torch.Tensor(X)
-            # X= X.double()
             # test_data, _ = torch.utils.data.random_split(test_data, [size_test, len(test_data) - size_test])
-            # test_data = MinMaxScaler().fit_transform(test_data)
-            return X
+            return test_data
         else:
-            X, colors = make_swiss_roll(no_samples, noise)
-            X = MinMaxScaler().fit_transform(X)
-            X = torch.from_numpy(X).to(device)
-            # X = torch.Tensor(X)
-            # X= X.double()
-            # train_data, _ = torch.utils.data.random_split(train_data, [size_train, len(train_data) - size_train])
-            # train_data = MinMaxScaler().fit_transform(train_data)
-            return X
+            return train_data
     else:
         if data == 'test':
             test_data_url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_test.data'
@@ -140,29 +138,29 @@ class Model(nn.Module):
         self.los = 0
         self.criterion = torch.nn.MSELoss()
         self.encode = nn.Sequential(
-            nn.Linear(in_shape, 450),
+            nn.Linear(in_shape, in_one),
             # nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
-            nn.Linear(450, 400),
+            nn.Linear(in_one, in_two),
             # nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
-            nn.Linear(400, enc_shape),
+            nn.Linear(in_two, enc_shape),
             #nn.Sigmoid()
         )
 
         self.decode = nn.Sequential(
             nn.BatchNorm1d(enc_shape),
-            nn.Linear(enc_shape, 400),
+            nn.Linear(enc_shape, in_two),
             # nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
-            nn.Linear(400, 450),
+            nn.Linear(in_two, in_one),
             # nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
-            nn.Linear(450, in_shape),
+            nn.Linear(in_one, in_shape),
             #nn.Sigmoid()
         )
 
@@ -383,8 +381,8 @@ class ptReplica(multiprocessing.Process):
                 self.adapttemp = self.temperature  # T1=T/log(k+1);
             if i == pt_samples and init_count == 0:  # Move to canonical MCMC
                 self.adapttemp = 1
-                [likelihood, pred_train, msetrain] = self.likelihood_func(cae, train, w)
-                [_, pred_test, msetest] = self.likelihood_func(cae, test, w)
+                [likelihood, pred_train, msetrain] = self.likelihood_func(cae, train, w,tau_sq=1)
+                [_, pred_test, msetest] = self.likelihood_func(cae, test, w,tau_sq=1)
                 init_count = 1
 
             lx = np.random.uniform(0, 1, 1)
@@ -614,39 +612,40 @@ class ptReplica(multiprocessing.Process):
         # self.outres1.write('\n')
 
         ###################################Classification##########################################################################################################################
-        global madelon_train_sample
-        madelon_train_sample = StandardScaler().fit_transform(madelon_train_sample)
-        madelon_train_sample = torch.from_numpy(madelon_train_sample).to(device)
-        madelon_train_sample = copy.deepcopy(cae.forward(madelon_train_sample).detach())
-        madelon_train_sample = madelon_train_sample.data
-        mad_X_train, mad_X_test, mad_y_train, mad_y_test = train_test_split(madelon_train_sample, \
-                                                                            madelon_train_sample_label)
-        #using out of the box default parameters provided in scikit learn library
-        names_of_classifiers = ['LogisticRegression', 'KNeighbors', 'DecisionTree', 'SVClassifier']
+        if use_dataset == 2:
+            global madelon_train_sample
+            madelon_train_sample = StandardScaler().fit_transform(madelon_train_sample)
+            madelon_train_sample = torch.from_numpy(madelon_train_sample).to(device)
+            madelon_train_sample = copy.deepcopy(cae.forward(madelon_train_sample).detach())
+            madelon_train_sample = madelon_train_sample.data
+            mad_X_train, mad_X_test, mad_y_train, mad_y_test = train_test_split(madelon_train_sample, \
+                                                                                madelon_train_sample_label)
+            #using out of the box default parameters provided in scikit learn library
+            names_of_classifiers = ['LogisticRegression', 'KNeighbors', 'DecisionTree', 'SVClassifier']
 
-        classifiers = [
-            LogisticRegression(n_jobs=-1, random_state=42,max_iter=200),
-            KNeighborsClassifier(n_jobs=-1),
-            DecisionTreeClassifier(random_state=42),
-            SVC(random_state=42)]
+            classifiers = [
+                LogisticRegression(n_jobs=-1, random_state=42,max_iter=200),
+                KNeighborsClassifier(n_jobs=-1),
+                DecisionTreeClassifier(random_state=42),
+                SVC(random_state=42)]
 
-        mad_raw_test_scores = {}
-        mad_raw_train_scores = {}
-        mad_raw_y_preds = {}
+            mad_raw_test_scores = {}
+            mad_raw_train_scores = {}
+            mad_raw_y_preds = {}
 
-        for name, clfr in zip(names_of_classifiers, classifiers):
-            clfr.fit(mad_X_train, mad_y_train)
+            for name, clfr in zip(names_of_classifiers, classifiers):
+                clfr.fit(mad_X_train, mad_y_train)
 
-            train_score = clfr.score(mad_X_train, mad_y_train)
-            test_score = clfr.score(mad_X_test, mad_y_test)
-            y_pred = clfr.predict(mad_X_test)
+                train_score = clfr.score(mad_X_train, mad_y_train)
+                test_score = clfr.score(mad_X_test, mad_y_test)
+                y_pred = clfr.predict(mad_X_test)
 
-            mad_raw_train_scores[name] = train_score
-            mad_raw_test_scores[name] = test_score
-            mad_raw_y_preds[name] = y_pred
+                mad_raw_train_scores[name] = train_score
+                mad_raw_test_scores[name] = test_score
+                mad_raw_y_preds[name] = y_pred
 
-        print('Test', mad_raw_test_scores)
-        #print('Train',mad_raw_train_scores)
+            print('Test', mad_raw_test_scores)
+            #print('Train',mad_raw_train_scores)
 
 
         ##################################################################################################################################################################################
@@ -1251,7 +1250,7 @@ def main():
 
     if use_dataset == 1:
         shape = 28
-        problemfolder += '/autoencoder_' + str(exp) + '_SwissRoll_  ' + str(numSamples)
+        problemfolder += '/autoencoder_' + str(exp) + '_Nomao_  ' + str(numSamples)
         PATH = 'saved_model' + 'SR.pt'
     elif use_dataset == 2:
         shape = 96
