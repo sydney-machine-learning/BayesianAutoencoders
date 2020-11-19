@@ -64,10 +64,10 @@ no_channels = 1
 #size_test = 700
 step_size = 0.005
 num_chains = 8  # equal to no of cores available
-pt_samples = 0.5
-langevin_step = 40
+pt_samples = 1
+langevin_step = 30
 mt_val = 2
-swap_ratio = 0.005
+swap_ratio = 0.002
 maxtemp = 2
 swap_interval = 10
 shape = 28
@@ -319,6 +319,15 @@ class ptReplica(multiprocessing.Process):
         weight_array1 = np.zeros(samples)
         weight_array2 = np.zeros(samples)
         weight_array3 = np.zeros(samples)
+        weight_array4 = np.zeros(samples)
+        weight_array5 = np.zeros(samples)
+        weight_array6 = np.zeros(samples)
+        weight_array7 = np.zeros(samples)
+        weight_array8 = np.zeros(samples)
+        weight_array9 = np.zeros(samples)
+        weight_array10 = np.zeros(samples)
+        weight_array11 = np.zeros(samples)
+        weight_array12 = np.zeros(samples)
         sum_value_array = np.zeros(samples)
 
         eta = 0
@@ -365,6 +374,16 @@ class ptReplica(multiprocessing.Process):
         weight_array1[0] = 0
         weight_array2[0] = 0
         weight_array3[0] = 0
+        weight_array4[0] = 0
+        weight_array5[0] = 0
+        weight_array6[0] = 0
+        weight_array7[0] = 0
+        weight_array8[0] = 0
+        weight_array9[0] = 0
+        weight_array10[0] = 0
+        weight_array11[0] = 0
+        weight_array12[0] = 0
+
         sum_value_array[0] = 0
 
         # pytorch_total_params = sum(p.numel() for p in cae.parameters() if p.requires_grad)
@@ -524,9 +543,19 @@ class ptReplica(multiprocessing.Process):
             # print(len(ll))
             # print(ll[0])
             weight_array[i] = ll[0]
-            weight_array1[i] = ll[1000]
-            weight_array3[i] = ll[3500]
-            weight_array2[i] = ll[16000]
+            weight_array1[i] = ll[100]
+            weight_array3[i] = ll[5000]
+            weight_array2[i] = ll[10000]
+
+            weight_array4[i] = ll[2000]
+            weight_array5[i] = ll[3000]
+            weight_array6[i] = ll[4000]
+            weight_array7[i] = ll[5000]
+            weight_array8[i] = ll[6000]
+            weight_array9[i] = ll[7000]
+            weight_array10[i] = ll[8000]
+            weight_array11[i] = ll[9000]
+            weight_array12[i] = ll[11000]
 
             if (i + 1) % self.swap_interval == 0:
                 param = np.concatenate([np.asarray([cae.getparameters(w)]).reshape(-1), np.asarray([eta]).reshape(-1),
@@ -583,6 +612,34 @@ class ptReplica(multiprocessing.Process):
 
         file_name = self.path + '/weight[5000]_' + str(self.temperature) + '.txt'
         np.savetxt(file_name, weight_array3, fmt='%1.2f')
+
+        file_name = self.path + '/weight[2000]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array4, fmt='%1.2f')
+
+        file_name = self.path + '/weight[3000]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array5, fmt='%1.2f')
+
+        file_name = self.path + '/weight[4000]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array6, fmt='%1.2f')
+
+        file_name = self.path + '/weight[5000]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array7, fmt='%1.2f')
+
+        file_name = self.path + '/weight[6000]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array8, fmt='%1.2f')
+
+        file_name = self.path + '/weight[7000]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array9, fmt='%1.2f')
+
+        file_name = self.path + '/weight[8000]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array10, fmt='%1.2f')
+
+        file_name = self.path + '/weight[9000]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array11, fmt='%1.2f')
+
+        file_name = self.path + '/weight[11000]_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, weight_array12, fmt='%1.2f')
+
 
         file_name = self.path + '/mse_test_chain_' + str(self.temperature) + '.txt'
         np.savetxt(file_name, mse_test, fmt='%1.2f')
@@ -790,10 +847,11 @@ class ParallelTempering:
         self.minlim_param = np.repeat([-100], self.num_param)  # priors for nn weights
         self.maxlim_param = np.repeat([100], self.num_param)
         for i in range(0, self.num_chains):
-            w = np.random.randn(self.num_param)
+            w = np.ones(self.num_param)
+            w = w*i
+            #w = np.random.randn(self.num_param)
             #r1= -1
             #r2= 1
-            #w = i * torch.rand(self.num_param) - i
             #w = w[torch.randperm(w.size()[0])]
             w = self.cae.dictfromlist(w)
             self.chains.append(
