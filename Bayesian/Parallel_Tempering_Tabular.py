@@ -449,6 +449,8 @@ class ptReplica(multiprocessing.Process):
 
             diff_likelihood = likelihood_proposal - likelihood
             # diff_likelihood = diff_likelihood*-1
+            prior_prop = torch.tensor(prior_prop)
+            priot_current= torch.tensor(prior_current)
             diff_prior = prior_prop - prior_current
 
             likelihood_proposal_array[i] = likelihood_proposal
