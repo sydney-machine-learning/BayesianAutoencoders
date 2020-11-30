@@ -63,7 +63,7 @@ no_channels = 1
 #size_train = 900
 #size_test = 700
 step_size = 0.005
-num_chains = 2  # equal to no of cores available
+num_chains = 8  # equal to no of cores available
 pt_samples = 1
 langevin_step = 30
 mt_val = 2
@@ -277,16 +277,17 @@ class ptReplica(multiprocessing.Process):
         fx = cae.evaluate_proposal(data, w)
         # fx = [x * batch_size for x in fx]
         mse = torch.mean(torch.Tensor(fx))
-        loss = torch.as_tensor(np.sum(-0.5 * np.log(2 * math.pi * tau_sq) - 0.5 * np.square(fx) / tau_sq))
-        print(type(loss))
+        #print(type(loss))
         print(type(tau_sq))
-        return [torch.sum(loss) / self.adapttemp, fx, mse]
+        loss = torch.sum(torch.as_tensor((-0.5 * np.log(2 * math.pi * tau_sq) - 0.5 * np.square(fx) / tau_sq)))
+        #print(type(loss))
+        return [loss / self.adapttemp, fx, mse]
 
-    def prior_likelihood(self, sigma_squared, w_list):
+    def prior_likelihood(self, sigma_squared, w_list, tausq, nu_1, nu_2):
         # print("inside prior likelihood")
         part1 = -1 * ((len(w_list)) / 2) * np.log(sigma_squared)
         part2 = 1 / (2 * sigma_squared) * (sum(np.square(w_list)))
-        log_loss = part1 - part2
+        log_loss = part1 - part2 - (1 + nu_1) * np.log(tausq) - (nu_2 / tausq)
         return log_loss
 
     def accuracy(self, data):
@@ -331,7 +332,14 @@ class ptReplica(multiprocessing.Process):
         weight_array12 = np.zeros(samples)
         sum_value_array = np.zeros(samples)
 
-        eta = 0
+        train = self.traindata  # data_load(data='train')
+        pred_train = cae.evaluate_proposal(train, w)
+        pred_test = cae.evaluate_proposal(self.testdata, w)
+        pred_train = torch.tensor(pred_train)
+        eta = np.log(torch.var(pred_train - train))
+        tau_pro = np.exp(eta)
+        step_eta = 0.2
+        #eta = 0 # size of compressed neural network (300)
         w_proposal = np.random.randn(w_size)
         w_proposal = cae.dictfromlist(w_proposal)
         step_w = self.step_size
@@ -341,10 +349,10 @@ class ptReplica(multiprocessing.Process):
         nu_1 = 0
         nu_2 = 0
         delta_likelihood = 0.5  # an arbitrary position
-        prior_current = self.prior_likelihood(sigma_squared, cae.getparameters(w))
+        prior_current = self.prior_likelihood(sigma_squared, cae.getparameters(w), tau_pro, nu_1, nu_2)
 
-        [likelihood, pred_train, msetrain] = self.likelihood_func(cae, train, w, tau_sq=1)
-        [_, pred_test, msetest] = self.likelihood_func(cae, test, w, tau_sq=1)
+        [likelihood, pred_train, msetrain] = self.likelihood_func(cae, train, w, tau_pro)
+        [_, pred_test, msetest] = self.likelihood_func(cae, test, w, tau_pro)
 
         # Beginning Sampling using MCMC RANDOMWALK
 
@@ -430,11 +438,14 @@ class ptReplica(multiprocessing.Process):
                 w_proposal = cae.addnoiseandcopy(0, step_w)  # np.random.normal(w, step_w, w_size)
                 # print('random')
 
-            [likelihood_proposal, pred_train, msetrain] = self.likelihood_func(cae, train, w, tau_sq=1)
-            [likelihood_ignore, pred_test, msetest] = self.likelihood_func(cae, test, w, tau_sq=1)
+
+            eta_pro = eta + np.random.normal(0, step_eta, 1)
+            tau_pro = np.exp(eta_pro)
+            [likelihood_proposal, pred_train, msetrain] = self.likelihood_func(cae, train, w, tau_pro)
+            [likelihood_ignore, pred_test, msetest] = self.likelihood_func(cae, test, w, tau_pro)
 
             prior_prop = self.prior_likelihood(sigma_squared,
-                                               cae.getparameters(w_proposal))  # takes care of the gradients
+                                               cae.getparameters(w_proposal), tau_pro, nu_1, nu_2)  # takes care of the gradients
 
             diff_likelihood = likelihood_proposal - likelihood
             # diff_likelihood = diff_likelihood*-1
@@ -520,6 +531,7 @@ class ptReplica(multiprocessing.Process):
                 mse_test[i] = msetest
                 acc_train[i,] = acc_train1
                 acc_test[i,] = acc_test1
+                eta = eta_pro
 
             else:
                 w = old_w
