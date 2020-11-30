@@ -278,7 +278,8 @@ class ptReplica(multiprocessing.Process):
         # fx = [x * batch_size for x in fx]
         mse = torch.mean(torch.Tensor(fx))
         loss = torch.as_tensor(np.sum(-0.5 * np.log(2 * math.pi * tau_sq) - 0.5 * np.square(fx) / tau_sq))
-        # print(type(loss))
+        print(type(loss))
+        print(type(tau_sq))
         return [torch.sum(loss) / self.adapttemp, fx, mse]
 
     def prior_likelihood(self, sigma_squared, w_list):
