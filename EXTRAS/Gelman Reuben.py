@@ -17,6 +17,7 @@ weight7000 = np.zeros((no_chains, no_samples_b))
 weight8000 = np.zeros((no_chains, no_samples_b))
 weight9000 = np.zeros((no_chains, no_samples_b))
 weight11000 = np.zeros((no_chains, no_samples_b))
+likelihood_value = np.zeros((no_chains, no_samples))
 file1 = open("gelman_reuben/rhat.txt","w")
 
 
@@ -87,8 +88,8 @@ for i in range(no_chains):
     dat = dat[int(burnin * no_samples):]
     weight11000[i, :] = dat
 
-    file_name = 'likelihood_value_1.0.txt'
-    likelihood_value = np.loadtxt(file_name)
+    file_name = 'likelihood_value_'+str(temp[i]) + '.txt'
+    likelihood_value[i, :] = np.loadtxt(file_name)
 
     file_name = 'acc_test_chain_1.0.txt'
     acc_test = np.loadtxt(file_name)
@@ -527,7 +528,14 @@ plt.savefig(
 'gelman_reuben/weight[11000]_Chain' +'_samples.png')
 plt.clf()
 
-plt.plot(x2, likelihood_value, label='Likelihood')
+plt.plot(x2, likelihood_value[0], label='Likelihood')
+#plt.plot(x2, likelihood_value[1], label='Weight[11000]'+str(temp[1]))
+#plt.plot(x2, likelihood_value[2], label='Weight[11000]'+str(temp[2]))
+#plt.plot(x2, likelihood_value[3], label='Weight[11000]'+str(temp[3]))
+#plt.plot(x2, likelihood_value[4], label='Weight[11000]'+str(temp[4]))
+#plt.plot(x2, likelihood_value[5], label='Weight[11000]'+str(temp[5]))
+#plt.plot(x2, likelihood_value[6], label='Weight[11000]'+str(temp[6]))
+plt.plot(x2, likelihood_value[7], label='Weight[11000]'+str(temp[7]))
 #plt.legend(loc='upper left')
 plt.title("Likelihood Function Trace")
 plt.xlabel("Samples")
