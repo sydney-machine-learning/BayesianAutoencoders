@@ -610,63 +610,63 @@ class ptReplica(multiprocessing.Process):
         print('Exiting the Thread', self.temperature)
 
         file_name = self.path + '/sum_value_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, sum_value_array, fmt='%1.2f')
+        np.savetxt(file_name, sum_value_array, fmt='%1.4f')
 
         file_name = self.path + '/likelihood_value_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, likelihood_array, fmt='%1.2f')
+        np.savetxt(file_name, likelihood_array, fmt='%1.4f')
 
 
         file_name = self.path + '/weight[0]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array, fmt='%1.2f')
+        np.savetxt(file_name, weight_array, fmt='%1.4f')
 
         file_name = self.path + '/weight[100]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array1, fmt='%1.2f')
+        np.savetxt(file_name, weight_array1, fmt='%1.4f')
 
         file_name = self.path + '/weight[10000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array2, fmt='%1.2f')
+        np.savetxt(file_name, weight_array2, fmt='%1.4f')
 
         file_name = self.path + '/weight[5000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array3, fmt='%1.2f')
+        np.savetxt(file_name, weight_array3, fmt='%1.4f')
 
         file_name = self.path + '/weight[2000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array4, fmt='%1.2f')
+        np.savetxt(file_name, weight_array4, fmt='%1.4f')
 
         file_name = self.path + '/weight[3000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array5, fmt='%1.2f')
+        np.savetxt(file_name, weight_array5, fmt='%1.4f')
 
         file_name = self.path + '/weight[4000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array6, fmt='%1.2f')
+        np.savetxt(file_name, weight_array6, fmt='%1.4f')
 
         file_name = self.path + '/weight[5000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array7, fmt='%1.2f')
+        np.savetxt(file_name, weight_array7, fmt='%1.4f')
 
         file_name = self.path + '/weight[6000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array8, fmt='%1.2f')
+        np.savetxt(file_name, weight_array8, fmt='%1.4f')
 
         file_name = self.path + '/weight[7000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array9, fmt='%1.2f')
+        np.savetxt(file_name, weight_array9, fmt='%1.4f')
 
         file_name = self.path + '/weight[8000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array10, fmt='%1.2f')
+        np.savetxt(file_name, weight_array10, fmt='%1.4f')
 
         file_name = self.path + '/weight[9000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array11, fmt='%1.2f')
+        np.savetxt(file_name, weight_array11, fmt='%1.4f')
 
         file_name = self.path + '/weight[11000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array12, fmt='%1.2f')
+        np.savetxt(file_name, weight_array12, fmt='%1.4f')
 
 
         file_name = self.path + '/mse_test_chain_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, mse_test, fmt='%1.2f')
+        np.savetxt(file_name, mse_test, fmt='%1.4f')
 
         file_name = self.path + '/mse_train_chain_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, mse_train, fmt='%1.2f')
+        np.savetxt(file_name, mse_train, fmt='%1.4f')
 
         file_name = self.path + '/acc_test_chain_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, acc_test, fmt='%1.2f')
+        np.savetxt(file_name, acc_test, fmt='%1.4f')
 
         file_name = self.path + '/acc_train_chain_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, acc_train, fmt='%1.2f')
+        np.savetxt(file_name, acc_train, fmt='%1.4f')
 
         file_name = self.path + '/accept_percentage' + str(self.temperature) + '.txt'
         with open(file_name, 'w') as f:
