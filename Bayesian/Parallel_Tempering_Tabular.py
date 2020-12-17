@@ -64,7 +64,7 @@ no_channels = 1
 #size_test = 700
 step_size = 0.005
 num_chains = 8  # equal to no of cores available
-pt_samples = 1
+pt_samples = 0.7
 langevin_step = 30
 mt_val = 2
 swap_ratio = 0.002
@@ -450,7 +450,7 @@ class ptReplica(multiprocessing.Process):
             diff_likelihood = likelihood_proposal - likelihood
             # diff_likelihood = diff_likelihood*-1
             prior_prop = torch.tensor(prior_prop)
-            priot_current= torch.tensor(prior_current)
+            priot_current = torch.tensor(prior_current)
             diff_prior = prior_prop - prior_current
 
             likelihood_proposal_array[i] = likelihood_proposal
@@ -610,63 +610,66 @@ class ptReplica(multiprocessing.Process):
         print('Exiting the Thread', self.temperature)
 
         file_name = self.path + '/sum_value_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, sum_value_array, fmt='%1.4f')
+        np.savetxt(file_name, sum_value_array, fmt='%1.2f')
 
         file_name = self.path + '/likelihood_value_' + str(self.temperature) + '.txt'
         np.savetxt(file_name, likelihood_array, fmt='%1.4f')
 
+        file_name = self.path + '/likelihood_value_proposal' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, likelihood_proposal_array, fmt='%1.4f')
+
 
         file_name = self.path + '/weight[0]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array, fmt='%1.4f')
+        np.savetxt(file_name, weight_array, fmt='%1.2f')
 
         file_name = self.path + '/weight[100]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array1, fmt='%1.4f')
+        np.savetxt(file_name, weight_array1, fmt='%1.2f')
 
         file_name = self.path + '/weight[10000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array2, fmt='%1.4f')
+        np.savetxt(file_name, weight_array2, fmt='%1.2f')
 
         file_name = self.path + '/weight[5000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array3, fmt='%1.4f')
+        np.savetxt(file_name, weight_array3, fmt='%1.2f')
 
         file_name = self.path + '/weight[2000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array4, fmt='%1.4f')
+        np.savetxt(file_name, weight_array4, fmt='%1.2f')
 
         file_name = self.path + '/weight[3000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array5, fmt='%1.4f')
+        np.savetxt(file_name, weight_array5, fmt='%1.2f')
 
         file_name = self.path + '/weight[4000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array6, fmt='%1.4f')
+        np.savetxt(file_name, weight_array6, fmt='%1.2f')
 
         file_name = self.path + '/weight[5000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array7, fmt='%1.4f')
+        np.savetxt(file_name, weight_array7, fmt='%1.2f')
 
         file_name = self.path + '/weight[6000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array8, fmt='%1.4f')
+        np.savetxt(file_name, weight_array8, fmt='%1.2f')
 
         file_name = self.path + '/weight[7000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array9, fmt='%1.4f')
+        np.savetxt(file_name, weight_array9, fmt='%1.2f')
 
         file_name = self.path + '/weight[8000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array10, fmt='%1.4f')
+        np.savetxt(file_name, weight_array10, fmt='%1.2f')
 
         file_name = self.path + '/weight[9000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array11, fmt='%1.4f')
+        np.savetxt(file_name, weight_array11, fmt='%1.2f')
 
         file_name = self.path + '/weight[11000]_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, weight_array12, fmt='%1.4f')
+        np.savetxt(file_name, weight_array12, fmt='%1.2f')
 
 
         file_name = self.path + '/mse_test_chain_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, mse_test, fmt='%1.4f')
+        np.savetxt(file_name, mse_test, fmt='%1.2f')
 
         file_name = self.path + '/mse_train_chain_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, mse_train, fmt='%1.4f')
+        np.savetxt(file_name, mse_train, fmt='%1.2f')
 
         file_name = self.path + '/acc_test_chain_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, acc_test, fmt='%1.4f')
+        np.savetxt(file_name, acc_test, fmt='%1.2f')
 
         file_name = self.path + '/acc_train_chain_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, acc_train, fmt='%1.4f')
+        np.savetxt(file_name, acc_train, fmt='%1.2f')
 
         file_name = self.path + '/accept_percentage' + str(self.temperature) + '.txt'
         with open(file_name, 'w') as f:
@@ -1005,6 +1008,7 @@ class ParallelTempering:
         acc_test = np.zeros((self.num_chains, self.NumSamples))
         sum_val_array = np.zeros((self.num_chains, self.NumSamples))
         likelihood_val_array = np.zeros((self.num_chains, self.NumSamples))
+        likelihood_proposal_val_array = np.zeros((self.num_chains, self.NumSamples))
 
         weight_ar = np.zeros((self.num_chains, self.NumSamples))
         weight_ar1 = np.zeros((self.num_chains, self.NumSamples))
@@ -1053,6 +1057,12 @@ class ParallelTempering:
             dat = np.loadtxt(file_name)
             likelihood_val_array[i, :] = dat
 
+            file_name = self.path + '/likelihood_value_proposal' + str(self.temperatures[i]) + '.txt'
+            dat = np.loadtxt(file_name)
+            likelihood_proposal_val_array[i, :] = dat
+
+
+
 
             file_name = self.path + '/weight[0]_' + str(self.temperatures[i]) + '.txt'
             dat = np.loadtxt(file_name)
@@ -1080,6 +1090,7 @@ class ParallelTempering:
         acc_test_single_chain_plot = acc_test[0, :]
         sum_val_array_single_chain_plot = sum_val_array[0]
         likelihood_val_array_single_chain_plot = likelihood_val_array[0]
+        likelihood_proposal_val_array_single_chain_plot = likelihood_proposal_val_array[0]
 
         # path = 'cifar_torch/CAE/graphs'
 
@@ -1091,10 +1102,16 @@ class ParallelTempering:
         plt.savefig(self.path + '/sum_value_single_chain.png')
         plt.clf()
 
-        plt.plot(x2, likelihood_val_array_single_chain_plot, label='Sum Value')
+        plt.plot(x2, likelihood_val_array_single_chain_plot, label='Likelihood Value')
         plt.legend(loc='upper right')
         plt.title("Likelihood Value Single Chain")
         plt.savefig(self.path + '/likelihood_value_single_chain.png')
+        plt.clf()
+
+        plt.plot(x2, likelihood_proposal_val_array_single_chain_plot, label='Proposed Likelihood Value')
+        plt.legend(loc='upper right')
+        plt.title("Proposed Likelihood Value Single Chain")
+        plt.savefig(self.path + '/likelihood_proposal_value_single_chain.png')
         plt.clf()
 
         num_bins = 10
