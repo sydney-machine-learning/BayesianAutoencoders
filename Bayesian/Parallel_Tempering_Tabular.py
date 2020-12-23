@@ -72,7 +72,7 @@ maxtemp = 1.1
 swap_interval = 10
 shape = 28
 no_samples = 1600
-noise = 0.0125
+#noise = 0.0125
 use_dataset = 2
 #use_dataset = int(input("Enter dataset to use: 1. Swiss Roll 2. Madelon Dataset "))
 if use_dataset == 1:
