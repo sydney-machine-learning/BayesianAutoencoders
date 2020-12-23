@@ -68,11 +68,11 @@ pt_samples = 0.7
 langevin_step = 30
 mt_val = 2
 swap_ratio = 0.002
-maxtemp = 2
+maxtemp = 1.1
 swap_interval = 10
 shape = 28
 no_samples = 1600
-noise = 0.05
+noise = 0.0125
 use_dataset = 2
 #use_dataset = int(input("Enter dataset to use: 1. Swiss Roll 2. Madelon Dataset "))
 if use_dataset == 1:
@@ -331,6 +331,7 @@ class ptReplica(multiprocessing.Process):
         weight_array11 = np.zeros(samples)
         weight_array12 = np.zeros(samples)
         sum_value_array = np.zeros(samples)
+        u_value = np.zeros(samples)
 
         train = self.traindata  # data_load(data='train')
         pred_train = cae.evaluate_proposal(train, w)
@@ -502,6 +503,7 @@ class ptReplica(multiprocessing.Process):
             # sum_value*=0.0001
             # print(sum_value)
             u = np.log(random.uniform(0, 1))
+            u_value[i] = u
             # print(u)
 
             sum_value_array[i] = sum_value
@@ -670,6 +672,9 @@ class ptReplica(multiprocessing.Process):
 
         file_name = self.path + '/acc_train_chain_' + str(self.temperature) + '.txt'
         np.savetxt(file_name, acc_train, fmt='%1.2f')
+
+        file_name = self.path + '/u_value_' + str(self.temperature) + '.txt'
+        np.savetxt(file_name, u_value, fmt='%1.4f')
 
         file_name = self.path + '/accept_percentage' + str(self.temperature) + '.txt'
         with open(file_name, 'w') as f:
@@ -1009,6 +1014,7 @@ class ParallelTempering:
         sum_val_array = np.zeros((self.num_chains, self.NumSamples))
         likelihood_val_array = np.zeros((self.num_chains, self.NumSamples))
         likelihood_proposal_val_array = np.zeros((self.num_chains, self.NumSamples))
+        u_value_all = np.zeros((self.num_chains, self.NumSamples))
 
         weight_ar = np.zeros((self.num_chains, self.NumSamples))
         weight_ar1 = np.zeros((self.num_chains, self.NumSamples))
@@ -1061,6 +1067,11 @@ class ParallelTempering:
             dat = np.loadtxt(file_name)
             likelihood_proposal_val_array[i, :] = dat
 
+            file_name = self.path + '/u_value_' + str(self.temperatures[i]) + '.txt'
+            dat = np.loadtxt(file_name)
+            u_value_all[i, :] = dat
+
+
 
 
 
@@ -1091,6 +1102,7 @@ class ParallelTempering:
         sum_val_array_single_chain_plot = sum_val_array[0]
         likelihood_val_array_single_chain_plot = likelihood_val_array[0]
         likelihood_proposal_val_array_single_chain_plot = likelihood_proposal_val_array[0]
+        u_value_single = u_value_all[0]
 
         # path = 'cifar_torch/CAE/graphs'
 
@@ -1113,6 +1125,13 @@ class ParallelTempering:
         plt.title("Proposed Likelihood Value Single Chain")
         plt.savefig(self.path + '/likelihood_proposal_value_single_chain.png')
         plt.clf()
+
+        plt.plot(x2, u_value_single, label='U value')
+        plt.legend(loc='lower right')
+        plt.title("U values")
+        plt.savefig(self.path + '/u_values.png')
+        plt.clf()
+
 
         num_bins = 10
         n, bins, patches = plt.hist(sum_val_array_single_chain_plot, num_bins, facecolor='blue', alpha=0.5)
