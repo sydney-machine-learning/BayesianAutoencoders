@@ -68,8 +68,8 @@ pt_samples = 0.7
 langevin_step = 30
 mt_val = 2
 swap_ratio = 0.002
-maxtemp = 1.1
-swap_interval = 10000000000000
+maxtemp = 2
+swap_interval = 2
 shape = 28
 no_samples = 1600
 #noise = 0.0125
@@ -993,6 +993,8 @@ class ParallelTempering:
         # pos_w, fx_train, fx_test, mse_train, mse_test, acc_train, acc_test, likelihood_vec, accept_vec, accept = self.show_results()
         mse_train, mse_test, acc_train, acc_test, apal = self.show_results()
         print("NUMBER OF SWAPS = ", self.num_swap)
+        if self.total_swap_proposals == 0:
+            self.total_swap_proposals = 1
         swap_perc = self.num_swap * 100 / self.total_swap_proposals
         # return pos_w, fx_train, fx_test, mse_train, mse_test, acc_train, acc_test, likelihood_vec, swap_perc, accept_vec, accept
         return mse_train, mse_test, acc_train, acc_test, apal, swap_perc
@@ -1355,15 +1357,16 @@ def main():
     numSamples = int(input("Enter no of samples: "))
     # swap_interval = int(swap_ratio * numSamples / num_chains)
     problemfolder = 'results'
+    description = ' swap interval 2'
     global shape
 
     if use_dataset == 1:
         shape = 28
-        problemfolder += '/autoencoder_' + str(exp) + '_Nomao_  ' + str(numSamples)
+        problemfolder += '/autoencoder_' + str(exp) + '_Nomao_  ' + str(numSamples) + str(description)
         PATH = 'saved_model' + 'SR.pt'
     elif use_dataset == 2:
         shape = 96
-        problemfolder += '/autoencoder_' + str(exp) + '_Madelon_' + str(numSamples)
+        problemfolder += '/autoencoder_' + str(exp) + '_Madelon_' + str(numSamples) + str(description)
         PATH = 'saved_model' + 'Madelon.pt'
 
     os.makedirs(problemfolder)
