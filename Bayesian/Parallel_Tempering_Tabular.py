@@ -72,7 +72,7 @@ swap_interval = 3
 #shape = 28
 #no_samples = 1600
 #noise = 0.0125
-use_dataset = 2 # 1.- coil 2000 2.- Madelon 3.- Swiss roll
+use_dataset = 1 # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
 if use_dataset == 1:
     in_shape = 86
