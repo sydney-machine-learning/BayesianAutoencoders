@@ -38,6 +38,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from pprint import pprint
 from sklearn.metrics import classification_report, confusion_matrix, log_loss
 import csv
+import pandas as pd
 
 
 device = "cpu"
@@ -56,56 +57,68 @@ batch_size = 10
 # number of epochs to train the model
 n_epochs = 1
 
-lrate = 0.01
+#lrate = 0.09
 burnin = 0.25
 ulg = True
 no_channels = 1
-#size_train = 900
-#size_test = 700
 step_size = 0.005
 num_chains = 8  # equal to no of cores available
 pt_samples = 0.7
 langevin_step = 30
 mt_val = 2
-swap_ratio = 0.002
+#swap_ratio = 0.002
 maxtemp = 2
-swap_interval = 2
-shape = 28
-no_samples = 1600
+swap_interval = 3
+#shape = 28
+#no_samples = 1600
 #noise = 0.0125
-use_dataset = 2
-#use_dataset = int(input("Enter dataset to use: 1. Swiss Roll 2. Madelon Dataset "))
-if use_dataset == 1:
-    in_shape = 119
-    enc_shape = 60
-    in_one = 100
-    in_two = 80
+use_dataset = 2 # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
-else:
+if use_dataset == 1:
+    in_shape = 86
+    enc_shape = 50
+    in_one = 70
+    in_two = 60
+    lrate = 0.09 # 0.09
+    step_size = 0.03 #0.05
+
+elif use_dataset == 2:
     in_shape = 500
     enc_shape = 300
     in_one = 450
     in_two = 400
+    step_size= 0.005
+    lrate = 0.01
     train_data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.data'
     train_data_labels_url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.labels'
     madelon_train_sample = np.loadtxt(urllib2.urlopen(train_data_url))
     madelon_train_sample_label = np.loadtxt(urllib2.urlopen(train_data_labels_url))
+
+elif use_dataset == 3:
+    in_shape = 3
+    enc_shape = 2
+    in_one = 10
+    in_two = 5
+    lrate = 0.01 #0.01
+    step_size = 0.005
+
+
 
 
 
 
 def data_load(data='train'):
     if use_dataset == 1:
-        X = np.loadtxt('Nomao.data')
+        X = pd.read_csv('data\coildata2000.txt', sep="\t", header=None)
         X = MinMaxScaler().fit_transform(X)
         X = torch.from_numpy(X).to(device)
         train_data, test_data = train_test_split(X)
         if data == 'test':
-            # test_data, _ = torch.utils.data.random_split(test_data, [size_test, len(test_data) - size_test])
             return test_data
         else:
             return train_data
-    else:
+
+    elif use_dataset == 2:
         if data == 'test':
             test_data_url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_test.data'
             X = np.loadtxt(urllib2.urlopen(test_data_url))
@@ -126,6 +139,17 @@ def data_load(data='train'):
             # train_data, _ = torch.utils.data.random_split(train_data, [size_train, len(train_data) - size_train])
             # train_data = MinMaxScaler().fit_transform(train_data)
             return X
+
+    elif use_dataset == 3:
+        X, color = make_swiss_roll(n_samples=5000)
+        #print(X.shape)
+        X = MinMaxScaler().fit_transform(X)
+        X = torch.from_numpy(X).to(device)
+        train_data, test_data = train_test_split(X)
+        if data == 'test':
+            return test_data
+        else:
+            return train_data
 
 
 def f(): raise Exception("Found exit()")
@@ -348,7 +372,7 @@ class ptReplica(multiprocessing.Process):
         test = self.testdata  # data_load(data= 'test')
         sigma_squared = 25
         nu_1 = 0
-        nu_2 = 0
+        nu_2 = 3
         delta_likelihood = 0.5  # an arbitrary position
         prior_current = self.prior_likelihood(sigma_squared, cae.getparameters(w), tau_pro, nu_1, nu_2)
 
@@ -423,7 +447,7 @@ class ptReplica(multiprocessing.Process):
                 w_prop_gd = cae.langevin_gradient(train)
                 wc_delta = (cae.getparameters(w) - cae.getparameters(w_prop_gd))
                 wp_delta = (cae.getparameters(w_proposal) - cae.getparameters(w_gd))
-                sigma_sq = step_w
+                sigma_sq = step_w*step_w
                 # print(wc_delta)
                 # print(wp_delta)
                 first = -0.5 * np.sum(wc_delta * wc_delta) / sigma_sq  # this is wc_delta.T  *  wc_delta /sigma_sq
@@ -557,22 +581,34 @@ class ptReplica(multiprocessing.Process):
                 acc_test[i,] = acc_test[i - 1,]
 
             ll = cae.getparameters()
-            # print(len(ll))
+            #print(len(ll))
             # print(ll[0])
-            weight_array[i] = ll[0]
-            weight_array1[i] = ll[100]
-            weight_array3[i] = ll[5000]
-            weight_array2[i] = ll[10000]
 
-            weight_array4[i] = ll[2000]
-            weight_array5[i] = ll[3000]
-            weight_array6[i] = ll[4000]
-            weight_array7[i] = ll[5000]
-            weight_array8[i] = ll[6000]
-            weight_array9[i] = ll[7000]
-            weight_array10[i] = ll[8000]
-            weight_array11[i] = ll[9000]
-            weight_array12[i] = ll[11000]
+            weight_array[i] = ll[0]
+            if len(ll)>=100:
+                weight_array1[i] = ll[100]
+            if len(ll) >= 5000:
+                weight_array3[i] = ll[5000]
+            if len(ll) >= 10000:
+                weight_array2[i] = ll[10000]
+            if len(ll) >= 2000:
+                weight_array4[i] = ll[2000]
+            if len(ll) >= 3000:
+                weight_array5[i] = ll[3000]
+            if len(ll) >= 4000:
+                weight_array6[i] = ll[4000]
+            if len(ll) >= 5000:
+                weight_array7[i] = ll[5000]
+            if len(ll) >= 6000:
+                weight_array8[i] = ll[6000]
+            if len(ll) >= 7000:
+                weight_array9[i] = ll[7000]
+            if len(ll) >= 8000:
+                weight_array10[i] = ll[8000]
+            if len(ll) >= 9000:
+                weight_array11[i] = ll[9000]
+            if len(ll) >= 11000:
+                weight_array12[i] = ll[11000]
 
             if (i + 1) % self.swap_interval == 0:
                 param = np.concatenate([np.asarray([cae.getparameters(w)]).reshape(-1), np.asarray([eta]).reshape(-1),
@@ -1357,17 +1393,20 @@ def main():
     numSamples = int(input("Enter no of samples: "))
     # swap_interval = int(swap_ratio * numSamples / num_chains)
     problemfolder = 'results'
-    description = ' swap interval 2'
+    description = ' swap interval ' +str(swap_interval)
     global shape
 
     if use_dataset == 1:
         shape = 28
-        problemfolder += '/autoencoder_' + str(exp) + '_Nomao_  ' + str(numSamples) + str(description)
+        problemfolder += '/autoencoder_' + str(exp) + '_coil_  ' + str(numSamples) + str(description)
         PATH = 'saved_model' + 'SR.pt'
     elif use_dataset == 2:
         shape = 96
         problemfolder += '/autoencoder_' + str(exp) + '_Madelon_' + str(numSamples) + str(description)
         PATH = 'saved_model' + 'Madelon.pt'
+    elif use_dataset ==3:
+        problemfolder += '/autoencoder_' + str(exp) + '_Swiss Roll_' + str(numSamples) + str(description)
+
 
     os.makedirs(problemfolder)
     global outres
