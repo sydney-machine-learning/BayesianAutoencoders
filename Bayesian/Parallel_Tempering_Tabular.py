@@ -66,13 +66,10 @@ num_chains = 8  # equal to no of cores available
 pt_samples = 0.7
 langevin_step = 30
 mt_val = 2
-#swap_ratio = 0.002
 maxtemp = 2
-swap_interval = 3
-#shape = 28
-#no_samples = 1600
+swap_interval = 10
 #noise = 0.0125
-use_dataset = 1 # 1.- coil 2000 2.- Madelon 3.- Swiss roll
+use_dataset = 3 # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
 if use_dataset == 1:
     in_shape = 86
@@ -80,7 +77,7 @@ if use_dataset == 1:
     in_one = 70
     in_two = 60
     lrate = 0.09 # 0.09
-    step_size = 0.03 #0.05
+    step_size = 0.05 #0.05
 
 elif use_dataset == 2:
     in_shape = 500
@@ -97,10 +94,10 @@ elif use_dataset == 2:
 elif use_dataset == 3:
     in_shape = 3
     enc_shape = 2
-    in_one = 10
-    in_two = 5
-    lrate = 0.01 #0.01
-    step_size = 0.005
+    in_one = 200 #100
+    in_two = 50 #10
+    lrate = 0.07 # 0.04
+    step_size = 0.06 #0.03
 
 
 
@@ -276,7 +273,7 @@ class ptReplica(multiprocessing.Process):
         self.use_langevin_gradients = use_langevin_gradients
         self.sgd_depth = 1  # Keep as 1
         self.batch_size = batch_size
-        self.l_prob = 0.25
+        self.l_prob = 0.7
         self.adapttemp = temperature
         self.temperature = temperature
         self.train_loss = 0
@@ -763,6 +760,28 @@ class ptReplica(multiprocessing.Process):
             print('Test', mad_raw_test_scores)
             #print('Train',mad_raw_train_scores)
 
+        elif use_dataset ==3:
+            X, color = make_swiss_roll(n_samples=1250)
+            X = MinMaxScaler().fit_transform(X)
+            X = torch.from_numpy(X).to(device)
+            #X_r = copy.deepcopy(cae.encode(X).detach())
+            X_r = copy.deepcopy(cae.forward(X).detach())
+            #X_r= cae.forward(X)
+            fig = plt.figure()
+            ax = fig.add_subplot(211, projection='3d')
+            ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=color, s=20, cmap=plt.cm.Spectral)
+            ax.set_title("Original data")
+
+            ax = fig.add_subplot(212,projection= '3d')
+            ax.scatter(X_r[:, 0], X_r[:, 1], X_r[:, 2], c=color, s=20, cmap=plt.cm.Spectral)
+
+            plt.axis('tight')
+            plt.xticks(fontsize=16), plt.yticks(fontsize=16)
+            plt.title('Projected data')
+            #plt.show()
+            plt.savefig(self.path + '/Swiss_Roll_Reduction.png')
+            plt.clf()
+
 
         ##################################################################################################################################################################################
         # torch.save(cae.state_dict(), PATH)
@@ -1153,13 +1172,12 @@ class ParallelTempering:
         plt.clf()
 
         plt.plot(x2, likelihood_val_array_single_chain_plot, label='Likelihood Value')
-        plt.legend(loc='upper right')
+        #plt.legend(loc='upper right')
         plt.title("Likelihood Value Single Chain")
         plt.savefig(self.path + '/likelihood_value_single_chain.png')
         plt.clf()
 
         plt.plot(x2, likelihood_proposal_val_array_single_chain_plot, label='Proposed Likelihood Value')
-        plt.legend(loc='upper right')
         plt.title("Proposed Likelihood Value Single Chain")
         plt.savefig(self.path + '/likelihood_proposal_value_single_chain.png')
         plt.clf()
@@ -1183,7 +1201,7 @@ class ParallelTempering:
         plt.plot(x2, acc_test_single_chain_plot, label="Test", color=color)
         plt.xlabel('Samples')
         plt.ylabel('Accuracy')
-        plt.legend()
+        #plt.legend()
         plt.savefig(self.path + '/superimposed_acc_single_chain.png')
         plt.clf()
 
@@ -1193,7 +1211,7 @@ class ParallelTempering:
         plt.plot(x2, mse_test_single_chain_plot, label="Test", color=color)
         plt.xlabel('Samples')
         plt.ylabel('mse')
-        plt.legend()
+        #plt.legend()
         plt.savefig(self.path + '/superimposed_mse_single_chain.png')
         plt.clf()
 
