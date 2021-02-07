@@ -94,8 +94,8 @@ elif use_dataset == 2:
 elif use_dataset == 3:
     in_shape = 3
     enc_shape = 2
-    in_one = 200 #100
-    in_two = 50 #10
+    in_one = 128 #100
+    in_two = 64 #10
     lrate = 0.07 # 0.04
     step_size = 0.06 #0.03
 
