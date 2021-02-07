@@ -761,7 +761,7 @@ class ptReplica(multiprocessing.Process):
             #print('Train',mad_raw_train_scores)
 
         elif use_dataset ==3:
-            X, color = make_swiss_roll(n_samples=1250)
+            X, color = make_swiss_roll(n_samples=2500)
             X = MinMaxScaler().fit_transform(X)
             X = torch.from_numpy(X).to(device)
             #X_r = copy.deepcopy(cae.encode(X).detach())
