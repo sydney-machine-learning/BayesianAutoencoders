@@ -67,7 +67,7 @@ pt_samples = 0.7
 langevin_step = 30
 mt_val = 2
 maxtemp = 2
-swap_interval = 10
+swap_interval = 20
 #noise = 0.0125
 use_dataset = 3 # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
@@ -767,19 +767,22 @@ class ptReplica(multiprocessing.Process):
             #X_r = copy.deepcopy(cae.encode(X).detach())
             X_r = copy.deepcopy(cae.forward(X).detach())
             #X_r= cae.forward(X)
-            fig = plt.figure()
-            ax = fig.add_subplot(211, projection='3d')
+            fig = plt.figure(figsize=(15,6))
+            ax = fig.add_subplot(121, projection='3d')
             ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=color, cmap=plt.cm.jet)
-            ax.set_title("Original data")
+            #ax.set_title("Original data")
+            plt.savefig(self.path + 'Swiss_Roll_Original')
+            plt.clf()
 
-            ax = fig.add_subplot(212,projection= '3d')
+            fig = plt.figure(figsize=(15,6))
+            ax = fig.add_subplot(122,projection= '3d')
             ax.scatter(X_r[:, 0], X_r[:, 1], X_r[:, 2], c=color, cmap=plt.cm.jet)
 
             plt.axis('tight')
             plt.xticks(fontsize=16), plt.yticks(fontsize=16)
-            plt.title('Projected data')
+            #plt.title('Projected data')
             #plt.show()
-            plt.savefig(self.path + '/Swiss_Roll_Reduction.png')
+            plt.savefig(self.path + '/Swiss_Roll_Reconstructed.png')
             plt.clf()
 
 
