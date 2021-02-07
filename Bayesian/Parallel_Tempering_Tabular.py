@@ -769,11 +769,11 @@ class ptReplica(multiprocessing.Process):
             #X_r= cae.forward(X)
             fig = plt.figure()
             ax = fig.add_subplot(211, projection='3d')
-            ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=color, s=20, cmap=plt.cm.Spectral)
+            ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=color, cmap=plt.cm.jet)
             ax.set_title("Original data")
 
             ax = fig.add_subplot(212,projection= '3d')
-            ax.scatter(X_r[:, 0], X_r[:, 1], X_r[:, 2], c=color, s=20, cmap=plt.cm.Spectral)
+            ax.scatter(X_r[:, 0], X_r[:, 1], X_r[:, 2], c=color, cmap=plt.cm.jet)
 
             plt.axis('tight')
             plt.xticks(fontsize=16), plt.yticks(fontsize=16)
