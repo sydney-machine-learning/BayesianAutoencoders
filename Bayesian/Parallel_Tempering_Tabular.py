@@ -67,7 +67,7 @@ pt_samples = 0.7
 langevin_step = 30
 mt_val = 2
 maxtemp = 2
-swap_interval = 50
+swap_interval = 500
 #noise = 0.0125
 use_dataset = 3 # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
