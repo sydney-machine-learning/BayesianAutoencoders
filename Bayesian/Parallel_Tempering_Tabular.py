@@ -96,8 +96,8 @@ elif use_dataset == 3:
     enc_shape = 2
     in_one = 128 #100
     in_two = 64 #10
-    lrate = 0.04 # 0.04
-    step_size = 0.03 #0.03
+    lrate = 0.02 # 0.04
+    step_size = 0.01 #0.03
 
 
 
@@ -774,15 +774,26 @@ class ptReplica(multiprocessing.Process):
             plt.savefig(self.path + 'Swiss_Roll_Original')
             plt.clf()
 
+            fig = plt.figure(figsize=(15, 6))
+            ax = fig.add_subplot(212)
+            ax.scatter(X[:, 0], X[:, 1], c=color, cmap=plt.cm.jet)
+            plt.savefig(self.path + 'Swiss_Roll_Original_2D')
+            plt.clf()
+
             fig = plt.figure(figsize=(15,6))
             ax = fig.add_subplot(122,projection= '3d')
             ax.scatter(X_r[:, 0], X_r[:, 1], X_r[:, 2], c=color, cmap=plt.cm.jet)
-
             plt.axis('tight')
             plt.xticks(fontsize=16), plt.yticks(fontsize=16)
             #plt.title('Projected data')
             #plt.show()
             plt.savefig(self.path + '/Swiss_Roll_Reconstructed.png')
+            plt.clf()
+
+            fig = plt.figure(figsize=(15, 6))
+            ax = fig.add_subplot(213)
+            ax.scatter(X_r[:, 0], X_r[:, 1], c=color, cmap=plt.cm.jet)
+            plt.savefig(self.path + 'Swiss_Roll_Re_2D')
             plt.clf()
 
 
