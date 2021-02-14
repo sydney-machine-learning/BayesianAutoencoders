@@ -62,12 +62,12 @@ burnin = 0.25
 ulg = True
 no_channels = 1
 step_size = 0.005
-num_chains = 2  # equal to no of cores available
+num_chains = 8  # equal to no of cores available
 pt_samples = 0.7
 langevin_step = 30
 mt_val = 2
 maxtemp = 2
-swap_interval = 10
+swap_interval = 1000000000000000000000000000000
 #noise = 0.0125
 use_dataset = 3 # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
