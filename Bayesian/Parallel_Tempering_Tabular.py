@@ -185,8 +185,8 @@ class Model(nn.Module):
             #nn.Sigmoid()
         )
 
-        #self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
-        self.optimizer= torch.optim.Adam(self.parameters())
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
+        #self.optimizer= torch.optim.Adam(self.parameters())
 
     def forward(self, x):
         x = self.encode(x)
