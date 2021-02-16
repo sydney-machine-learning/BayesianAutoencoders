@@ -96,8 +96,8 @@ elif use_dataset == 3:
     enc_shape = 2
     in_one = 128 #100
     in_two = 64 #10
-    lrate = 0.04 # 0.04
-    step_size = 0.03 #0.03
+    lrate = 0.01 # 0.04
+    step_size = 0.005 #0.03
 
 
 
@@ -1431,14 +1431,14 @@ def main():
 
     if use_dataset == 1:
         shape = 28
-        problemfolder += '/autoencoder_' + str(exp) + '_coil_  ' + str(numSamples) + str(description)
+        problemfolder += '/autoencoder_' + str(exp) + '_coil_  '
         PATH = 'saved_model' + 'SR.pt'
     elif use_dataset == 2:
         shape = 96
-        problemfolder += '/autoencoder_' + str(exp) + '_Madelon_' + str(numSamples) + str(description)
+        problemfolder += '/autoencoder_' + str(exp) + '_Madelon_'
         PATH = 'saved_model' + 'Madelon.pt'
     elif use_dataset ==3:
-        problemfolder += '/autoencoder_' + str(exp) + '_Swiss Roll_' + str(numSamples) + str(description)
+        problemfolder += '/autoencoder_' + str(exp) + '_Swiss Roll_'
 
 
     os.makedirs(problemfolder)
