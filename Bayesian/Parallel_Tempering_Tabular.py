@@ -96,8 +96,8 @@ elif use_dataset == 3:
     enc_shape = 2
     in_one = 128 #100
     in_two = 64 #10
-    lrate = 0.02 # 0.04
-    step_size = 0.01 #0.03
+    lrate = 0.01 # 0.04
+    step_size = 0.005 #0.03
 
 
 
@@ -541,7 +541,8 @@ class ptReplica(multiprocessing.Process):
             # print(mh_prob)
             # print("\n\n")
 
-            if u < sum_value:
+            #if u < sum_value:
+            if 1:
                 num_accepted = num_accepted + 1
                 likelihood = likelihood_proposal
                 prior_current = prior_prop
