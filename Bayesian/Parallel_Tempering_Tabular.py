@@ -776,7 +776,7 @@ class ptReplica(multiprocessing.Process):
             plt.clf()
 
             fig = plt.figure(figsize=(15, 6))
-            ax = fig.add_subplot(212)
+            ax = fig.add_subplot()
             ax.scatter(X[:, 0], X[:, 1], c=color, cmap=plt.cm.jet)
             plt.savefig(self.path + 'Swiss_Roll_Original_2D')
             plt.clf()
@@ -792,7 +792,7 @@ class ptReplica(multiprocessing.Process):
             plt.clf()
 
             fig = plt.figure(figsize=(15, 6))
-            ax = fig.add_subplot(212)
+            ax = fig.add_subplot()
             ax.scatter(X_r[:, 0], X_r[:, 1], c=color, cmap=plt.cm.jet)
             plt.savefig(self.path + 'Swiss_Roll_Re_2D')
             plt.clf()
