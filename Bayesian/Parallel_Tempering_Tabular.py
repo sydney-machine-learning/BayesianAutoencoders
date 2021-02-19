@@ -67,7 +67,7 @@ pt_samples = 0.7
 langevin_step = 30
 mt_val = 2
 maxtemp = 2
-swap_interval = 1000000000000000000000000000000
+swap_interval = 10
 #noise = 0.0125
 use_dataset = 3 # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
@@ -96,8 +96,8 @@ elif use_dataset == 3:
     enc_shape = 2
     in_one = 128 #100
     in_two = 64 #10
-    lrate = 0.01 # 0.04
-    step_size = 0.005 #0.03
+    lrate = 0.1 # 0.04
+    step_size = 0.09 #0.03
 
 
 
@@ -541,7 +541,8 @@ class ptReplica(multiprocessing.Process):
             # print(mh_prob)
             # print("\n\n")
 
-            if u < sum_value or i>5000:
+            #if u < sum_value or i>5000:
+            if u < sum_value:
                 num_accepted = num_accepted + 1
                 likelihood = likelihood_proposal
                 prior_current = prior_prop
