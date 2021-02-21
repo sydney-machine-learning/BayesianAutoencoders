@@ -76,8 +76,8 @@ if use_dataset == 1:
     enc_shape = 50
     in_one = 70
     in_two = 60
-    lrate = 0.09 # 0.09
-    step_size = 0.05 #0.05
+    lrate = 0.05 # 0.05
+    step_size = 0.09 #0.09
 
 elif use_dataset == 2:
     in_shape = 500
@@ -96,8 +96,8 @@ elif use_dataset == 3:
     enc_shape = 2
     in_one = 128 #100
     in_two = 64 #10
-    lrate = 0.1 # 0.04
-    step_size = 0.09 #0.03
+    lrate = 0.01 # 0.04
+    step_size = 0.005 #0.03
 
 
 
@@ -160,11 +160,11 @@ class Model(nn.Module):
         self.criterion = torch.nn.MSELoss()
         self.encode = nn.Sequential(
             nn.Linear(in_shape, in_one),
-            # nn.ReLU(True),
+            #nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(in_one, in_two),
-            # nn.ReLU(True),
+            #nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(in_two, enc_shape),
@@ -174,11 +174,11 @@ class Model(nn.Module):
         self.decode = nn.Sequential(
             nn.BatchNorm1d(enc_shape),
             nn.Linear(enc_shape, in_two),
-            # nn.ReLU(True),
+            #nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(in_two, in_one),
-            # nn.ReLU(True),
+            #nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(in_one, in_shape),
@@ -186,7 +186,7 @@ class Model(nn.Module):
         )
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
-        #self.optimizer= torch.optim.Adam(self.parameters())
+        #self.optimizer = torch.optim.Adam(self.parameters())
 
     def forward(self, x):
         x = self.encode(x)
@@ -540,9 +540,9 @@ class ptReplica(multiprocessing.Process):
             # print("MH_Prob")
             # print(mh_prob)
             # print("\n\n")
-
-            #if u < sum_value or i>5000:
-            if u < sum_value:
+            
+            #if u < sum_value:
+            if u < sum_value or i>5000:
                 num_accepted = num_accepted + 1
                 likelihood = likelihood_proposal
                 prior_current = prior_prop
@@ -769,32 +769,33 @@ class ptReplica(multiprocessing.Process):
             #X_r = copy.deepcopy(cae.encode(X).detach())
             X_r = copy.deepcopy(cae.forward(X).detach())
             #X_r= cae.forward(X)
+            '''
             fig = plt.figure(figsize=(15,6))
             ax = fig.add_subplot(121, projection='3d')
             ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=color, cmap=plt.cm.jet)
             #ax.set_title("Original data")
             plt.savefig(self.path + 'Swiss_Roll_Original')
             plt.clf()
-
             fig = plt.figure(figsize=(15, 6))
             ax = fig.add_subplot()
             ax.scatter(X[:, 0], X[:, 1], c=color, cmap=plt.cm.jet)
             plt.savefig(self.path + 'Swiss_Roll_Original_2D')
             plt.clf()
+            '''
 
-            fig = plt.figure(figsize=(15,6))
-            ax = fig.add_subplot(122,projection= '3d')
+            fig = plt.figure()
+            ax = fig.add_subplot(projection= '3d')
             ax.scatter(X_r[:, 0], X_r[:, 1], X_r[:, 2], c=color, cmap=plt.cm.jet)
             plt.axis('tight')
-            plt.xticks(fontsize=16), plt.yticks(fontsize=16)
-            #plt.title('Projected data')
-            #plt.show()
+            plt.xticks(fontsize=10), plt.yticks(fontsize=10)
             plt.savefig(self.path + '/Swiss_Roll_Reconstructed.png')
             plt.clf()
 
-            fig = plt.figure(figsize=(15, 6))
+            fig = plt.figure()
             ax = fig.add_subplot()
             ax.scatter(X_r[:, 0], X_r[:, 1], c=color, cmap=plt.cm.jet)
+            plt.axis('tight')
+            plt.xticks(fontsize=10), plt.yticks(fontsize=10)
             plt.savefig(self.path + 'Swiss_Roll_Re_2D')
             plt.clf()
 
@@ -1432,14 +1433,14 @@ def main():
 
     if use_dataset == 1:
         shape = 28
-        problemfolder += '/autoencoder_' + str(exp) + '_coil_  '
+        problemfolder += '/autoencoder_' + str(exp) + '_coil_  ' + str(numSamples) + str(description)
         PATH = 'saved_model' + 'SR.pt'
     elif use_dataset == 2:
         shape = 96
-        problemfolder += '/autoencoder_' + str(exp) + '_Madelon_'
+        problemfolder += '/autoencoder_' + str(exp) + '_Madelon_' + str(numSamples) + str(description)
         PATH = 'saved_model' + 'Madelon.pt'
     elif use_dataset ==3:
-        problemfolder += '/autoencoder_' + str(exp) + '_Swiss Roll_'
+        problemfolder += '/autoencoder_' + str(exp) + '_Swiss Roll_' + str(numSamples) + str(description)
 
 
     os.makedirs(problemfolder)
