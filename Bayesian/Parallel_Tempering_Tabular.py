@@ -10,10 +10,10 @@ cae with mcmc in torch
 #  %reset -sf
 
 
-#import torchvision
-#import torch.nn.functional as F
-#import torchvision.transforms as transforms
-#from torchvision import datasets
+# import torchvision
+# import torch.nn.functional as F
+# import torchvision.transforms as transforms
+# from torchvision import datasets
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.datasets import make_swiss_roll
 import torch
@@ -40,7 +40,6 @@ from sklearn.metrics import classification_report, confusion_matrix, log_loss
 import csv
 import pandas as pd
 
-
 device = "cpu"
 
 problemfolder = 'results'
@@ -57,7 +56,7 @@ batch_size = 10
 # number of epochs to train the model
 n_epochs = 1
 
-#lrate = 0.09
+# lrate = 0.09
 burnin = 0.25
 ulg = True
 no_channels = 1
@@ -68,23 +67,23 @@ langevin_step = 30
 mt_val = 2
 maxtemp = 2
 swap_interval = 10
-#noise = 0.0125
-use_dataset = 3 # 1.- coil 2000 2.- Madelon 3.- Swiss roll
+# noise = 0.0125
+use_dataset = 1  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
 if use_dataset == 1:
-    in_shape = 86
+    in_shape = 85
     enc_shape = 50
     in_one = 70
     in_two = 60
-    lrate = 0.05 # 0.05
-    step_size = 0.09 #0.09
+    lrate = 0.09  # 0.05
+    step_size = 0.05  # 0.09
 
 elif use_dataset == 2:
     in_shape = 500
     enc_shape = 300
     in_one = 450
     in_two = 400
-    step_size= 0.005
+    step_size = 0.005
     lrate = 0.01
     train_data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.data'
     train_data_labels_url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.labels'
@@ -94,19 +93,15 @@ elif use_dataset == 2:
 elif use_dataset == 3:
     in_shape = 3
     enc_shape = 2
-    in_one = 128 #100
-    in_two = 64 #10
-    lrate = 0.04 # 0.04
-    step_size = 0.03 #0.03
-
-
-
-
+    in_one = 128  # 100
+    in_two = 64  # 10
+    lrate = 0.04  # 0.04
+    step_size = 0.03  # 0.03
 
 
 def data_load(data='train'):
     if use_dataset == 1:
-        X = pd.read_csv('data\coildata2000.txt', sep="\t", header=None)
+        X = pd.read_csv('data\coildataupdated.txt', sep="\t", header=None)
         X = MinMaxScaler().fit_transform(X)
         X = torch.from_numpy(X).to(device)
         train_data, test_data = train_test_split(X)
@@ -139,7 +134,7 @@ def data_load(data='train'):
 
     elif use_dataset == 3:
         X, color = make_swiss_roll(n_samples=5000)
-        #print(X.shape)
+        # print(X.shape)
         X = MinMaxScaler().fit_transform(X)
         X = torch.from_numpy(X).to(device)
         train_data, test_data = train_test_split(X)
@@ -160,33 +155,33 @@ class Model(nn.Module):
         self.criterion = torch.nn.MSELoss()
         self.encode = nn.Sequential(
             nn.Linear(in_shape, in_one),
-            #nn.ReLU(True),
+            # nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(in_one, in_two),
-            #nn.ReLU(True),
+            # nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(in_two, enc_shape),
-            #nn.Sigmoid()
+            # nn.Sigmoid()
         )
 
         self.decode = nn.Sequential(
             nn.BatchNorm1d(enc_shape),
             nn.Linear(enc_shape, in_two),
-            #nn.ReLU(True),
+            # nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(in_two, in_one),
-            #nn.ReLU(True),
+            # nn.ReLU(True),
             nn.Sigmoid(),
             nn.Dropout(0.2),
             nn.Linear(in_one, in_shape),
-            #nn.Sigmoid()
+            # nn.Sigmoid()
         )
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
-        #self.optimizer = torch.optim.Adam(self.parameters())
+        # self.optimizer = torch.optim.Adam(self.parameters())
 
     def forward(self, x):
         x = self.encode(x)
@@ -299,10 +294,10 @@ class ptReplica(multiprocessing.Process):
         fx = cae.evaluate_proposal(data, w)
         # fx = [x * batch_size for x in fx]
         mse = torch.mean(torch.Tensor(fx))
-        #print(type(loss))
-        #print(type(tau_sq))
+        # print(type(loss))
+        # print(type(tau_sq))
         loss = torch.sum(torch.as_tensor((-0.5 * np.log(2 * math.pi * tau_sq) - 0.5 * np.square(fx) / tau_sq)))
-        #print(type(loss))
+        # print(type(loss))
         return [loss / self.adapttemp, fx, mse]
 
     def prior_likelihood(self, sigma_squared, w_list, tausq, nu_1, nu_2):
@@ -362,7 +357,7 @@ class ptReplica(multiprocessing.Process):
         eta = np.log(torch.var(pred_train - train))
         tau_pro = np.exp(eta)
         step_eta = 0.2
-        #eta = 0 # size of compressed neural network (300)
+        # eta = 0 # size of compressed neural network (300)
         w_proposal = np.random.randn(w_size)
         w_proposal = cae.dictfromlist(w_proposal)
         step_w = self.step_size
@@ -432,8 +427,8 @@ class ptReplica(multiprocessing.Process):
                 self.adapttemp = self.temperature  # T1=T/log(k+1);
             if i == pt_samples and init_count == 0:  # Move to canonical MCMC
                 self.adapttemp = 1
-                [likelihood, pred_train, msetrain] = self.likelihood_func(cae, train, w,tau_sq=1)
-                [_, pred_test, msetest] = self.likelihood_func(cae, test, w,tau_sq=1)
+                [likelihood, pred_train, msetrain] = self.likelihood_func(cae, train, w, tau_sq=1)
+                [_, pred_test, msetest] = self.likelihood_func(cae, test, w, tau_sq=1)
                 init_count = 1
 
             lx = np.random.uniform(0, 1, 1)
@@ -445,7 +440,7 @@ class ptReplica(multiprocessing.Process):
                 w_prop_gd = cae.langevin_gradient(train)
                 wc_delta = (cae.getparameters(w) - cae.getparameters(w_prop_gd))
                 wp_delta = (cae.getparameters(w_proposal) - cae.getparameters(w_gd))
-                sigma_sq = step_w*step_w
+                sigma_sq = step_w * step_w
                 # print(wc_delta)
                 # print(wp_delta)
                 first = -0.5 * np.sum(wc_delta * wc_delta) / sigma_sq  # this is wc_delta.T  *  wc_delta /sigma_sq
@@ -461,14 +456,14 @@ class ptReplica(multiprocessing.Process):
                 w_proposal = cae.addnoiseandcopy(0, step_w)  # np.random.normal(w, step_w, w_size)
                 # print('random')
 
-
             eta_pro = eta + np.random.normal(0, step_eta, 1)
             tau_pro = np.exp(eta_pro)
             [likelihood_proposal, pred_train, msetrain] = self.likelihood_func(cae, train, w, tau_pro)
             [likelihood_ignore, pred_test, msetest] = self.likelihood_func(cae, test, w, tau_pro)
 
             prior_prop = self.prior_likelihood(sigma_squared,
-                                               cae.getparameters(w_proposal), tau_pro, nu_1, nu_2)  # takes care of the gradients
+                                               cae.getparameters(w_proposal), tau_pro, nu_1,
+                                               nu_2)  # takes care of the gradients
 
             diff_likelihood = likelihood_proposal - likelihood
             # diff_likelihood = diff_likelihood*-1
@@ -540,9 +535,9 @@ class ptReplica(multiprocessing.Process):
             # print("MH_Prob")
             # print(mh_prob)
             # print("\n\n")
-            
+
             if u < sum_value:
-            #if u < sum_value or i>5000:
+                # if u < sum_value or i>5000:
                 num_accepted = num_accepted + 1
                 likelihood = likelihood_proposal
                 prior_current = prior_prop
@@ -580,11 +575,11 @@ class ptReplica(multiprocessing.Process):
                 acc_test[i,] = acc_test[i - 1,]
 
             ll = cae.getparameters()
-            #print(len(ll))
+            # print(len(ll))
             # print(ll[0])
 
             weight_array[i] = ll[0]
-            if len(ll)>=100:
+            if len(ll) >= 100:
                 weight_array1[i] = ll[100]
             if len(ll) >= 5000:
                 weight_array3[i] = ll[5000]
@@ -655,7 +650,6 @@ class ptReplica(multiprocessing.Process):
         file_name = self.path + '/likelihood_value_proposal' + str(self.temperature) + '.txt'
         np.savetxt(file_name, likelihood_proposal_array, fmt='%1.4f')
 
-
         file_name = self.path + '/weight[0]_' + str(self.temperature) + '.txt'
         np.savetxt(file_name, weight_array, fmt='%1.2f')
 
@@ -695,7 +689,6 @@ class ptReplica(multiprocessing.Process):
         file_name = self.path + '/weight[11000]_' + str(self.temperature) + '.txt'
         np.savetxt(file_name, weight_array12, fmt='%1.2f')
 
-
         file_name = self.path + '/mse_test_chain_' + str(self.temperature) + '.txt'
         np.savetxt(file_name, mse_test, fmt='%1.2f')
 
@@ -731,15 +724,15 @@ class ptReplica(multiprocessing.Process):
             global madelon_train_sample
             madelon_train_sample = StandardScaler().fit_transform(madelon_train_sample)
             madelon_train_sample = torch.from_numpy(madelon_train_sample).to(device)
-            madelon_train_sample = copy.deepcopy(cae.forward(madelon_train_sample).detach())
+            madelon_train_sample = copy.deepcopy(cae.encode(madelon_train_sample).detach())
             madelon_train_sample = madelon_train_sample.data
             mad_X_train, mad_X_test, mad_y_train, mad_y_test = train_test_split(madelon_train_sample, \
                                                                                 madelon_train_sample_label)
-            #using out of the box default parameters provided in scikit learn library
+            # using out of the box default parameters provided in scikit learn library
             names_of_classifiers = ['LogisticRegression', 'KNeighbors', 'DecisionTree', 'SVClassifier']
 
             classifiers = [
-                LogisticRegression(n_jobs=-1, random_state=42,max_iter=200),
+                LogisticRegression(n_jobs=-1, random_state=42, max_iter=200),
                 KNeighborsClassifier(n_jobs=-1),
                 DecisionTreeClassifier(random_state=42),
                 SVC(random_state=42)]
@@ -760,15 +753,15 @@ class ptReplica(multiprocessing.Process):
                 mad_raw_y_preds[name] = y_pred
 
             print('Test', mad_raw_test_scores)
-            #print('Train',mad_raw_train_scores)
+            # print('Train',mad_raw_train_scores)
 
-        elif use_dataset ==3:
+        elif use_dataset == 3:
             X, color = make_swiss_roll(n_samples=2500)
             X = MinMaxScaler().fit_transform(X)
             X = torch.from_numpy(X).to(device)
-            #X_r = copy.deepcopy(cae.encode(X).detach())
+            # X_r = copy.deepcopy(cae.encode(X).detach())
             X_r = copy.deepcopy(cae.forward(X).detach())
-            #X_r= cae.forward(X)
+            # X_r= cae.forward(X)
             '''
             fig = plt.figure(figsize=(15,6))
             ax = fig.add_subplot(121, projection='3d')
@@ -784,7 +777,7 @@ class ptReplica(multiprocessing.Process):
             '''
 
             fig = plt.figure()
-            ax = fig.add_subplot(projection= '3d')
+            ax = fig.add_subplot(projection='3d')
             ax.scatter(X_r[:, 0], X_r[:, 1], X_r[:, 2], c=color, cmap=plt.cm.jet)
             plt.axis('tight')
             plt.xticks(fontsize=10), plt.yticks(fontsize=10)
@@ -798,6 +791,45 @@ class ptReplica(multiprocessing.Process):
             plt.xticks(fontsize=10), plt.yticks(fontsize=10)
             plt.savefig(self.path + 'Swiss_Roll_Re_2D')
             plt.clf()
+
+        elif use_dataset == 1:
+            #global madelon_train_sample
+            coil_train_sample = pd.read_csv('data\Ticeval2000.txt', sep="\t", header=None)
+            coil_train_sample_label = pd.read_csv('data\Tictgts2000.txt', sep="\t", header=None)
+            coil_train_sample= coil_train_sample.to_numpy()
+            coil_train_sample_label= coil_train_sample_label.to_numpy()
+            coil_train_sample = MinMaxScaler().fit_transform(coil_train_sample)
+            coil_train_sample = torch.from_numpy(coil_train_sample).to(device)
+            coil_train_sample = copy.deepcopy(cae.encode(coil_train_sample).detach())
+            coil_train_sample = coil_train_sample.data
+            c_X_train, c_X_test, c_y_train, c_y_test = train_test_split(coil_train_sample, \
+                                                                                coil_train_sample_label)
+            # using out of the box default parameters provided in scikit learn library
+            names_of_classifiers = ['LogisticRegression', 'KNeighbors', 'DecisionTree', 'SVClassifier']
+
+            classifiers = [
+                LogisticRegression(n_jobs=-1, random_state=42, max_iter=200),
+                KNeighborsClassifier(n_jobs=-1),
+                DecisionTreeClassifier(random_state=42),
+                SVC(random_state=42)]
+
+            c_raw_test_scores = {}
+            c_raw_train_scores = {}
+            c_raw_y_preds = {}
+
+            for name, clfr in zip(names_of_classifiers, classifiers):
+                clfr.fit(c_X_train, c_y_train)
+
+                train_score = clfr.score(c_X_train, c_y_train)
+                test_score = clfr.score(c_X_test, c_y_test)
+                y_pred = clfr.predict(c_X_test)
+
+                c_raw_train_scores[name] = train_score
+                c_raw_test_scores[name] = test_score
+                c_raw_y_preds[name] = y_pred
+
+            print('Test', c_raw_test_scores)
+            # print('Train',mad_raw_train_scores)
 
 
         ##################################################################################################################################################################################
@@ -943,11 +975,11 @@ class ParallelTempering:
         self.maxlim_param = np.repeat([100], self.num_param)
         for i in range(0, self.num_chains):
             w = np.ones(self.num_param)
-            w = w*i
-            #w = np.random.randn(self.num_param)
-            #r1= -1
-            #r2= 1
-            #w = w[torch.randperm(w.size()[0])]
+            w = w * i
+            # w = np.random.randn(self.num_param)
+            # r1= -1
+            # r2= 1
+            # w = w[torch.randperm(w.size()[0])]
             w = self.cae.dictfromlist(w)
             self.chains.append(
                 ptReplica(self.use_langevin_gradients, self.learn_rate, w, self.minlim_param, self.maxlim_param,
@@ -1145,10 +1177,6 @@ class ParallelTempering:
             dat = np.loadtxt(file_name)
             u_value_all[i, :] = dat
 
-
-
-
-
             file_name = self.path + '/weight[0]_' + str(self.temperatures[i]) + '.txt'
             dat = np.loadtxt(file_name)
             weight_ar[i, :] = dat
@@ -1189,7 +1217,7 @@ class ParallelTempering:
         plt.clf()
 
         plt.plot(x2, likelihood_val_array_single_chain_plot, label='Likelihood Value')
-        #plt.legend(loc='upper right')
+        # plt.legend(loc='upper right')
         plt.title("Likelihood Value Single Chain")
         plt.savefig(self.path + '/likelihood_value_single_chain.png')
         plt.clf()
@@ -1205,7 +1233,6 @@ class ParallelTempering:
         plt.savefig(self.path + '/u_values.png')
         plt.clf()
 
-
         num_bins = 10
         n, bins, patches = plt.hist(sum_val_array_single_chain_plot, num_bins, facecolor='blue', alpha=0.5)
         plt.title("Sum Value Histogram")
@@ -1218,7 +1245,7 @@ class ParallelTempering:
         plt.plot(x2, acc_test_single_chain_plot, label="Test", color=color)
         plt.xlabel('Samples')
         plt.ylabel('Accuracy')
-        #plt.legend()
+        # plt.legend()
         plt.savefig(self.path + '/superimposed_acc_single_chain.png')
         plt.clf()
 
@@ -1228,7 +1255,7 @@ class ParallelTempering:
         plt.plot(x2, mse_test_single_chain_plot, label="Test", color=color)
         plt.xlabel('Samples')
         plt.ylabel('mse')
-        #plt.legend()
+        # plt.legend()
         plt.savefig(self.path + '/superimposed_mse_single_chain.png')
         plt.clf()
 
@@ -1428,7 +1455,7 @@ def main():
     numSamples = int(input("Enter no of samples: "))
     # swap_interval = int(swap_ratio * numSamples / num_chains)
     problemfolder = 'results'
-    description = ' swap interval ' +str(swap_interval)
+    description = ' swap interval ' + str(swap_interval)
     global shape
 
     if use_dataset == 1:
@@ -1439,9 +1466,8 @@ def main():
         shape = 96
         problemfolder += '/autoencoder_' + str(exp) + '_Madelon_' + str(numSamples) + str(description)
         PATH = 'saved_model' + 'Madelon.pt'
-    elif use_dataset ==3:
+    elif use_dataset == 3:
         problemfolder += '/autoencoder_' + str(exp) + '_Swiss Roll_' + str(numSamples) + str(description)
-
 
     os.makedirs(problemfolder)
     global outres
