@@ -181,7 +181,7 @@ class Model(nn.Module):
         )
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
-        # self.optimizer = torch.optim.Adam(self.parameters())
+        self.optimizer = torch.optim.SGD(encoder.parameters(),lr=lrate)
 
     def forward(self, x):
         x = self.encode(x)
