@@ -68,7 +68,7 @@ mt_val = 2
 maxtemp = 2
 swap_interval = 10
 # noise = 0.0125
-use_dataset = 1  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
+use_dataset = 2  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
 if use_dataset == 1:
     in_shape = 85
@@ -269,7 +269,7 @@ class ptReplica(multiprocessing.Process):
         self.use_langevin_gradients = use_langevin_gradients
         self.sgd_depth = 1  # Keep as 1
         self.batch_size = batch_size
-        self.l_prob = 0.7
+        self.l_prob = 0
         self.adapttemp = temperature
         self.temperature = temperature
         self.train_loss = 0
