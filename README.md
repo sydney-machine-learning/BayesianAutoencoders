@@ -56,7 +56,7 @@ To quantify the dimensionality reduction, we calculate the reconstruction accura
 ![Madelon_Accuracy](https://user-images.githubusercontent.com/55910983/122640130-5ed0da80-d11b-11eb-9e39-bdf1d1249b96.png)
 
 
-The complete research can be accessed [here]((https://arxiv.org/abs/2104.05915))
+The complete research can be accessed [here](https://arxiv.org/abs/2104.05915)
 
 # Acknowledgements
 
