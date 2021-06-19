@@ -68,7 +68,7 @@ mt_val = 2
 maxtemp = 2
 swap_interval = 10
 # noise = 0.0125
-use_dataset = int(input('Enter dataset (1/2/3) you want to use [1 (coil 2000) 2 (Madelon) 3 (Swiss roll)'])  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
+use_dataset = int(input('Enter dataset (1/2/3) you want to use [1 (coil 2000) 2 (Madelon) 3 (Swiss roll)]'))  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
 if use_dataset == 1:
     in_shape = 85
