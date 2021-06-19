@@ -23,8 +23,8 @@ The datasets used in the project can be found here:
 
 The team that worked on this project and paper include but not limited to:-
 
-..*Dr. Rohitash Chandra
-..*Dr. Pavel N. Krivitsky
-..*Manavendra Maharana
-..*Mahir Jain
+*Dr. Rohitash Chandra
+*Dr. Pavel N. Krivitsky
+*Manavendra Maharana
+*Mahir Jain
 
