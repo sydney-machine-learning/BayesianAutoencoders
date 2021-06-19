@@ -796,8 +796,8 @@ class ptReplica(multiprocessing.Process):
 
         elif use_dataset == 1:
             #global madelon_train_sample
-            coil_train_sample = pd.read_csv('Extras\Ticeval2000.txt', sep="\t", header=None)
-            coil_train_sample_label = pd.read_csv('Extras\Tictgts2000.txt', sep="\t", header=None)
+            coil_train_sample = pd.read_csv('Extras/Ticeval2000.txt', sep="\t", header=None)
+            coil_train_sample_label = pd.read_csv('Extras/Tictgts2000.txt', sep="\t", header=None)
             coil_train_sample= coil_train_sample.to_numpy()
             coil_train_sample_label= coil_train_sample_label.to_numpy()
             coil_train_sample = MinMaxScaler().fit_transform(coil_train_sample)
