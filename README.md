@@ -5,6 +5,9 @@ Autoencoders gained popularity in the deep learning revolution given their abili
 
 
 # Requirements
+```python
+    pip install -r requirements.txt
+```
 
 # Running Parallel Tempering Bayesian Autoencoder
 
@@ -21,7 +24,7 @@ The datasets used in the project can be found here:
 
 # Acknowledgements
 
-The team that worked on this project and paper include but not limited to:-
+The team that worked on this project and paper include:-
 
 * Dr. Rohitash Chandra
 * Dr. Pavel N. Krivitsky
