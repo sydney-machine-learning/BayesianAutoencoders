@@ -5,11 +5,23 @@ Autoencoders gained popularity in the deep learning revolution given their abili
 
 
 # Requirements
+This project was tested on python 3.7 and the required packages can be installed using the provided requirements.txt:
+
 ```python
     pip install -r requirements.txt
 ```
 
 # Running Parallel Tempering Bayesian Autoencoder
+```python
+    cd Bayesian
+    python Parallel_Tempering_Tabular.py
+```
+After running these lines, you will be prompted to enter the following values:- 
+* Number of Samples- These are the total number of samples for which the code will run and this will be distributed across 8 Chains to take advantage of parallel computing (Recommended Number of Samples: >48000)
+* Dataset- Since we run experiments using any of the three datasets, you must choose the dataset you want to use for experimentation.
+
+It is also recommended to use tools like [Google Colab](https://colab.research.google.com/) to run the code since these are optimized to take advantage of Parallel Computing.
+
 
 # Datasets
 
