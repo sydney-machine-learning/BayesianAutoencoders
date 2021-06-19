@@ -32,7 +32,9 @@ The datasets used in the project can be found here:
 3. [Coil 2000](https://archive.ics.uci.edu/ml/datasets/Insurance+Company+Benchmark+(COIL+2000))
 
 
-# Preliminary Analysis
+# Research
+
+The complete research can be accessed [here](https://arxiv.org/abs/2104.05915)
 
 # Acknowledgements
 
