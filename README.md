@@ -10,4 +10,10 @@ Autoencoders gained popularity in the deep learning revolution given their abili
 
 # Datasets
 
+The datasets used in the project can be found here:
+
+1. [Swiss Roll] (https://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_swiss_roll.html)
+2. [Madelon] (https://archive.ics.uci.edu/ml/datasets/madelon)
+3. [Coil 2000] (https://archive.ics.uci.edu/ml/datasets/Insurance+Company+Benchmark+(COIL+2000))
+
 # Acknowledgements
