@@ -101,7 +101,7 @@ elif use_dataset == 3:
 
 def data_load(data='train'):
     if use_dataset == 1:
-        X = pd.read_csv('data\coildataupdated.txt', sep="\t", header=None)
+        X = pd.read_csv('Extras\coildataupdated.txt', sep="\t", header=None)
         X = MinMaxScaler().fit_transform(X)
         X = torch.from_numpy(X).to(device)
         train_data, test_data = train_test_split(X)
@@ -796,8 +796,8 @@ class ptReplica(multiprocessing.Process):
 
         elif use_dataset == 1:
             #global madelon_train_sample
-            coil_train_sample = pd.read_csv('data\Ticeval2000.txt', sep="\t", header=None)
-            coil_train_sample_label = pd.read_csv('data\Tictgts2000.txt', sep="\t", header=None)
+            coil_train_sample = pd.read_csv('Extras\Ticeval2000.txt', sep="\t", header=None)
+            coil_train_sample_label = pd.read_csv('Extras\Tictgts2000.txt', sep="\t", header=None)
             coil_train_sample= coil_train_sample.to_numpy()
             coil_train_sample_label= coil_train_sample_label.to_numpy()
             coil_train_sample = MinMaxScaler().fit_transform(coil_train_sample)
