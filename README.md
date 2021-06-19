@@ -39,9 +39,11 @@ The datasets used in the project can be found here:
 We perform preliminary analysis to prove the effectiveness of the bayesian autoencoder approach for dimensionality reduction as compared to a simple (canonical) autoencoder. 
 
 *Simple:*
+
 ![Swiss_SA](https://user-images.githubusercontent.com/55910983/122639699-e49f5680-d118-11eb-8ae5-1f5553a0ed3a.png)
  
 *Bayesian:*
+
 ![Swiss_BA](https://user-images.githubusercontent.com/55910983/122639710-f7b22680-d118-11eb-9a3a-1cc6a5aa05e1.png)
 
 As part of the Bayesian Autoencoder framework, we are able to form a posterior distribution of the parameters as a result of the experiments and we plot the distributuon of some of the randomly selected weights along with the trace of the values of these paramters over the course of the experimentation:
@@ -54,7 +56,7 @@ To quantify the dimensionality reduction, we calculate the reconstruction accura
 ![Madelon_Accuracy](https://user-images.githubusercontent.com/55910983/122640130-5ed0da80-d11b-11eb-9e39-bdf1d1249b96.png)
 
 
-The complete research can be accessed here [[1]]((https://arxiv.org/abs/2104.05915))
+The complete research can be accessed [here]((https://arxiv.org/abs/2104.05915))
 
 # Acknowledgements
 
@@ -65,9 +67,7 @@ The team that worked on this project and paper include:-
 * Manavendra Maharana
 * Mahir Jain
 
-## References
 
-<a id="1">[1]</a> 
-Revisiting Bayesian Autoencoders with MCMC (2021). 
+
 
 
