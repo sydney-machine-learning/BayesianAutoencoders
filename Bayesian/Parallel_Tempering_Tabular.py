@@ -66,7 +66,7 @@ pt_samples = 0.7
 langevin_step = 30
 mt_val = 2
 maxtemp = 2
-swap_interval = 1000000000000000000000000 #10
+swap_interval = 10 #10
 # noise = 0.0125
 #use_dataset = 1  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 use_dataset = int(input('Enter dataset (1/2/3) you want to use [1 (coil 2000) 2 (Madelon) 3 (Swiss roll)]'))  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
@@ -540,7 +540,7 @@ class ptReplica(multiprocessing.Process):
             # print("\n\n")
 
             #if u < sum_value:
-            if u < sum_value or i>4500:
+            if u < sum_value or i>4000:
             #if 1:
                 num_accepted = num_accepted + 1
                 likelihood = likelihood_proposal
