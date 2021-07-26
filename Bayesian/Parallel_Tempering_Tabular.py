@@ -539,8 +539,8 @@ class ptReplica(multiprocessing.Process):
             # print(mh_prob)
             # print("\n\n")
 
-            if u < sum_value:
-            #if u < sum_value or i>5000:
+            #if u < sum_value:
+            if u < sum_value or i>4500:
             #if 1:
                 num_accepted = num_accepted + 1
                 likelihood = likelihood_proposal
