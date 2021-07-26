@@ -60,15 +60,16 @@ n_epochs = 1
 burnin = 0.25
 ulg = True
 no_channels = 1
-step_size = 0.005
+step_size = 0.03 #0.005
 num_chains = 8  # equal to no of cores available
 pt_samples = 0.7
 langevin_step = 30
 mt_val = 2
 maxtemp = 2
-swap_interval = 10
+swap_interval = 1000000000000000000000000 #10
 # noise = 0.0125
-use_dataset = int(input('Enter dataset (1/2/3) you want to use [1 (coil 2000) 2 (Madelon) 3 (Swiss roll)]: '))  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
+#use_dataset = 1  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
+use_dataset = int(input('Enter dataset (1/2/3) you want to use [1 (coil 2000) 2 (Madelon) 3 (Swiss roll)]'))  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
 if use_dataset == 1:
     in_shape = 85
@@ -101,7 +102,7 @@ elif use_dataset == 3:
 
 def data_load(data='train'):
     if use_dataset == 1:
-        X = pd.read_csv('Extras/coildataupdated.txt', sep="\t", header=None)
+        X = pd.read_csv('data\coildataupdated.txt', sep="\t", header=None)
         X = MinMaxScaler().fit_transform(X)
         X = torch.from_numpy(X).to(device)
         train_data, test_data = train_test_split(X)
@@ -181,7 +182,7 @@ class Model(nn.Module):
         )
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
-        #self.optimizer = torch.optim.SGD(encoder.parameters(),lr=lrate)
+        #self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
 
     def forward(self, x):
         x = self.encode(x)
@@ -539,7 +540,8 @@ class ptReplica(multiprocessing.Process):
             # print("\n\n")
 
             if u < sum_value:
-                # if u < sum_value or i>5000:
+            #if u < sum_value or i>5000:
+            #if 1:
                 num_accepted = num_accepted + 1
                 likelihood = likelihood_proposal
                 prior_current = prior_prop
@@ -796,8 +798,8 @@ class ptReplica(multiprocessing.Process):
 
         elif use_dataset == 1:
             #global madelon_train_sample
-            coil_train_sample = pd.read_csv('Extras/Ticeval2000.txt', sep="\t", header=None)
-            coil_train_sample_label = pd.read_csv('Extras/Tictgts2000.txt', sep="\t", header=None)
+            coil_train_sample = pd.read_csv('data\Ticeval2000.txt', sep="\t", header=None)
+            coil_train_sample_label = pd.read_csv('data\Tictgts2000.txt', sep="\t", header=None)
             coil_train_sample= coil_train_sample.to_numpy()
             coil_train_sample_label= coil_train_sample_label.to_numpy()
             coil_train_sample = MinMaxScaler().fit_transform(coil_train_sample)
@@ -810,7 +812,7 @@ class ptReplica(multiprocessing.Process):
             names_of_classifiers = ['LogisticRegression', 'KNeighbors', 'DecisionTree', 'SVClassifier']
 
             classifiers = [
-                LogisticRegression(n_jobs=-1, random_state=42, max_iter=10000),
+                LogisticRegression(n_jobs=-1, random_state=42, max_iter=200),
                 KNeighborsClassifier(n_jobs=-1),
                 DecisionTreeClassifier(random_state=42),
                 SVC(random_state=42)]
@@ -1463,13 +1465,13 @@ class ParallelTempering:
 def main():
     numSamples = int(input("Enter no of samples: "))
     # swap_interval = int(swap_ratio * numSamples / num_chains)
-    problemfolder = 'results'
+    problemfolder = 'results/Paper_Revision'
     description = ' swap interval ' + str(swap_interval)
     global shape
 
     if use_dataset == 1:
         shape = 28
-        problemfolder += '/autoencoder_' + str(exp) + '_coil_  ' + str(numSamples) + str(description)
+        problemfolder += '/' + str(exp) + '_coil_  ' + str(numSamples) + str(description)
         PATH = 'saved_model' + 'SR.pt'
     elif use_dataset == 2:
         shape = 96
