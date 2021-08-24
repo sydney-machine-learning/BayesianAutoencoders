@@ -990,8 +990,10 @@ class ParallelTempering:
 
             print('  swap ')
         else:
+            print ('no swap')
             swapped = False
-            self.total_swap_proposals += 1
+            
+        self.total_swap_proposals += 1
         return param1, param2, swapped
 
     def run_chains(self):
