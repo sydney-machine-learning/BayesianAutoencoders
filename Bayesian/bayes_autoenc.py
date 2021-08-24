@@ -969,8 +969,8 @@ class ParallelTempering:
         #[lhood12, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata, w1, np.exp(eta1), T2)
         #[lhood21, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata, w2, np.exp(eta2), T1)
 
-        lhood12 = 0
-        lhood21 = 0
+        #lhood12 = 0
+        #lhood21 = 0
         try:
             swap_proposal = min(1, np.exp((lhood12 - lhood1) + (lhood21 - lhood2)))
         except OverflowError:
