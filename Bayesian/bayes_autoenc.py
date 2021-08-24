@@ -965,10 +965,10 @@ class ParallelTempering:
         T2 = param2[self.num_param + 2]
 
         print(type(self.traindata[0][0]))
-        print(type(self.traindata.astype(np.float)[0][0]))
+        print(type(self.traindata.astype(np.float32)[0][0]))
         # SWAPPING PROBABILITIES
-        [lhood12, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.astype(np.float), w1, np.exp(eta1), T2)
-        [lhood21, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.astype(np.float), w2, np.exp(eta2), T1)
+        [lhood12, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.astype(np.float32), w1, np.exp(eta1), T2)
+        [lhood21, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.astype(np.float32), w2, np.exp(eta2), T1)
         
 
         #lhood12 = 0
