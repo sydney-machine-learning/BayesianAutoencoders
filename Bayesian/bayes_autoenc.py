@@ -966,8 +966,9 @@ class ParallelTempering:
 
         
         # SWAPPING PROBABILITIES
-        [lhood12, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.float(), w1, np.exp(eta1), T2)
-        [lhood21, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.float(), w2, np.exp(eta2), T1)
+        [lhood12, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.astype(np.float), w1, np.exp(eta1), T2)
+        [lhood21, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.astype(np.float), w2, np.exp(eta2), T1)
+        
 
         #lhood12 = 0
         #lhood21 = 0
@@ -986,10 +987,10 @@ class ParallelTempering:
             param_temp = param1
             param1 = param2
             param2 = param_temp
-            #param1[self.num_param + 1] = lhood21
-            #param1[self.num_param + 2] = T2
-            #param2[self.num_param + 1] = lhood12
-            #param2[self.num_param + 2] = T1
+            param1[self.num_param + 1] = lhood21
+            param1[self.num_param + 2] = T2
+            param2[self.num_param + 1] = lhood12
+            param2[self.num_param + 2] = T1
             print('  swap ')
         else:
             print ('no swap')
