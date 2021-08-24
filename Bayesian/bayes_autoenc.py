@@ -88,21 +88,22 @@ elif use_dataset == 2:
     lrate = 0.01
     train_data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.data'
     train_data_labels_url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.labels'
+    # does not work, better keep the dataset in repo
     madelon_train_sample = np.loadtxt(urllib2.urlopen(train_data_url))
     madelon_train_sample_label = np.loadtxt(urllib2.urlopen(train_data_labels_url))
 
 elif use_dataset == 3:
     in_shape = 3
     enc_shape = 2
-    in_one = 10 #128  # 100
-    in_two = 5 # 64  # 10
+    in_one = 15 #128  # 100
+    in_two = 10 # 64  # 10
     lrate = 0.01  # 0.04
     step_size = 0.03  # 0.03
 
 
 def data_load(data='train'):
     if use_dataset == 1:
-        X = pd.read_csv('Datasets/coildataupdated.txt', sep="\t", header=None)
+        X = pd.read_csv('Datasets/coildataupdated.txt', sep="\t", header=None)  # this does not work in my case (linux)
         X = MinMaxScaler().fit_transform(X)
         #X = torch.from_numpy(X).to(device)
         train_data, test_data = train_test_split(X)
@@ -150,11 +151,11 @@ class Model(nn.Module):
             nn.Linear(in_shape, in_one),
             # nn.ReLU(True),
             nn.Sigmoid(),
-            nn.Dropout(0.2),
+            #nn.Dropout(0.2),
             nn.Linear(in_one, in_two),
             # nn.ReLU(True),
             nn.Sigmoid(),
-            nn.Dropout(0.2),
+            #nn.Dropout(0.2),
             nn.Linear(in_two, enc_shape),
             # nn.Sigmoid()
         )
@@ -164,17 +165,17 @@ class Model(nn.Module):
             nn.Linear(enc_shape, in_two),
             # nn.ReLU(True),
             nn.Sigmoid(),
-            nn.Dropout(0.2),
+            #nn.Dropout(0.2), # droputs should not have been used. 
             nn.Linear(in_two, in_one),
             # nn.ReLU(True),
             nn.Sigmoid(),
-            nn.Dropout(0.2),
+            #nn.Dropout(0.2),
             nn.Linear(in_one, in_shape),
             # nn.Sigmoid()
         )
 
-        #self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
-        self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
+        #self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
 
     def forward(self, x):
         x = self.encode(x)
@@ -986,6 +987,8 @@ class ParallelTempering:
             param1[self.num_param + 2] = T2
             param2[self.num_param + 1] = lhood12
             param2[self.num_param + 2] = T1
+
+            print('  swap ')
         else:
             swapped = False
             self.total_swap_proposals += 1
@@ -1324,7 +1327,7 @@ class ParallelTempering:
 
 
 def main():
-    numSamples = 50000 # int(input("Enter no of samples: "))
+    numSamples = 10000 # int(input("Enter no of samples: "))
     # swap_interval = int(swap_ratio * numSamples / num_chains)
     problemfolder = 'results/Paper_Revision'
     description = ' swap interval ' + str(swap_interval)
