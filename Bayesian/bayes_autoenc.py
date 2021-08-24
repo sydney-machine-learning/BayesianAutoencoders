@@ -966,17 +966,18 @@ class ParallelTempering:
 
         
         # SWAPPING PROBABILITIES
-        #[lhood12, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata, w1, np.exp(eta1), T2)
-        #[lhood21, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata, w2, np.exp(eta2), T1)
+        [lhood12, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata, w1, np.exp(eta1), T2)
+        [lhood21, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata, w2, np.exp(eta2), T1)
 
         #lhood12 = 0
         #lhood21 = 0
         try:
-            #swap_proposal = min(1, np.exp((lhood12 - lhood1) + (lhood21 - lhood2)))
-            swap_proposal = min(1, 0.5 * np.exp(lhood2 - lhood1))
-            
+            swap_proposal = min(1, np.exp((lhood12 - lhood1) + (lhood21 - lhood2)))
+            #swap_proposal = min(1, 0.5 * np.exp(lhood2 - lhood1))
+           
         except OverflowError:
             swap_proposal = 1
+          
         u = np.random.uniform(0, 1)
         if u < swap_proposal:
             swapped = True
