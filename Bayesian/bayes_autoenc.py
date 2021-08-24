@@ -972,7 +972,9 @@ class ParallelTempering:
         #lhood12 = 0
         #lhood21 = 0
         try:
-            swap_proposal = min(1, np.exp((lhood12 - lhood1) + (lhood21 - lhood2)))
+            #swap_proposal = min(1, np.exp((lhood12 - lhood1) + (lhood21 - lhood2)))
+            swap_proposal = min(1, 0.5 * np.exp(lhood2 - lhood1))
+            
         except OverflowError:
             swap_proposal = 1
         u = np.random.uniform(0, 1)
@@ -983,17 +985,16 @@ class ParallelTempering:
             param_temp = param1
             param1 = param2
             param2 = param_temp
-            param1[self.num_param + 1] = lhood21
-            param1[self.num_param + 2] = T2
-            param2[self.num_param + 1] = lhood12
-            param2[self.num_param + 2] = T1
-
+            #param1[self.num_param + 1] = lhood21
+            #param1[self.num_param + 2] = T2
+            #param2[self.num_param + 1] = lhood12
+            #param2[self.num_param + 2] = T1
             print('  swap ')
         else:
             print ('no swap')
             swapped = False
+            self.total_swap_proposals += 1
             
-        self.total_swap_proposals += 1
         return param1, param2, swapped
 
     def run_chains(self):
