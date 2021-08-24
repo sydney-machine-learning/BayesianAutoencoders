@@ -966,8 +966,8 @@ class ParallelTempering:
 
         
         # SWAPPING PROBABILITIES
-        [lhood12, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata, w1, np.exp(eta1), T2)
-        [lhood21, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata, w2, np.exp(eta2), T1)
+        [lhood12, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.float(), w1, np.exp(eta1), T2)
+        [lhood21, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.float(), w2, np.exp(eta2), T1)
 
         #lhood12 = 0
         #lhood21 = 0
