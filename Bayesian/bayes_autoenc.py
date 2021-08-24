@@ -1327,7 +1327,7 @@ class ParallelTempering:
 
 
 def main():
-    numSamples = 10000 # int(input("Enter no of samples: "))
+    numSamples = 48000 # int(input("Enter no of samples: "))
     # swap_interval = int(swap_ratio * numSamples / num_chains)
     problemfolder = 'results/Paper_Revision'
     description = ' swap interval ' + str(swap_interval)
