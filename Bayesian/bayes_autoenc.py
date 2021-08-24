@@ -964,7 +964,7 @@ class ParallelTempering:
         lhood2 = param2[self.num_param + 1]
         T2 = param2[self.num_param + 2]
 
-        
+        print(type(self.traindata))
         # SWAPPING PROBABILITIES
         [lhood12, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.astype(np.float), w1, np.exp(eta1), T2)
         [lhood21, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.astype(np.float), w2, np.exp(eta2), T1)
