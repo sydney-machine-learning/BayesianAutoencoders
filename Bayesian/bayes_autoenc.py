@@ -68,7 +68,7 @@ mt_val = 2
 maxtemp = 2
 swap_interval = 5 #10
 # noise = 0.0125
-use_dataset = 3  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
+use_dataset = 2  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 #use_dataset = int(input('Enter dataset (1/2/3) you want to use [1 (coil 2000) 2 (Madelon) 3 (Swiss roll)]'))  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
 if use_dataset == 1:
@@ -97,7 +97,7 @@ elif use_dataset == 3:
     enc_shape = 2
     in_one = 15 #128  # 100
     in_two = 10 # 64  # 10
-    lrate = 0.01  # 0.04 # 0.01
+    lrate = 0.1  # 0.04 # 0.01
     step_size = 0.005  # 0.03 # 0.005
 
 
@@ -974,6 +974,7 @@ class ParallelTempering:
         #lhood12 = 0
         #lhood21 = 0
         try:
+            print(np.exp((lhood12 - lhood1) + (lhood21 - lhood2)))
             swap_proposal = min(1, np.exp((lhood12 - lhood1) + (lhood21 - lhood2)))
             #swap_proposal = min(1, 0.5 * np.exp(lhood2 - lhood1))
            
@@ -992,9 +993,9 @@ class ParallelTempering:
             param1[self.num_param + 2] = T2
             param2[self.num_param + 1] = lhood12
             param2[self.num_param + 2] = T1
-            print('  swap ')
+            #print('  swap ')
         else:
-            print ('no swap')
+            #print ('no swap')
             swapped = False
             self.total_swap_proposals += 1
             
