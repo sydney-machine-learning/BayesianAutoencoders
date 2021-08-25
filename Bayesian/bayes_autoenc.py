@@ -97,7 +97,7 @@ elif use_dataset == 3:
     enc_shape = 2
     in_one = 15 #128  # 100
     in_two = 10 # 64  # 10
-    lrate = 0.01  # 0.04 # 0.01
+    lrate = 0.1  # 0.04 # 0.01
     step_size = 0.005  # 0.03 # 0.005
 
 
@@ -174,8 +174,8 @@ class Model(nn.Module):
             # nn.Sigmoid()
         )
 
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
-        #self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
+        #self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
+        self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
 
     def forward(self, x):
         x = self.encode(x)
