@@ -95,8 +95,8 @@ elif use_dataset == 2:
 elif use_dataset == 3:
     in_shape = 3
     enc_shape = 2
-    in_one = 15 #128  # 100
-    in_two = 10 # 64  # 10
+    in_one = 10 #128  # 100
+    in_two = 5# 64  # 10
     lrate = 0.01  # 0.04 # 0.01
     step_size = 0.005  # 0.03 # 0.005
 
@@ -438,14 +438,19 @@ class ptReplica(multiprocessing.Process):
         # acc_train[0] = 50.0
         # acc_test[0] = 50.0
 
+        pt = int(pt_samples * samples)
+        
+
         # print('i and samples')
-        for i in range(
-                samples):  # Begin sampling --------------------------------------------------------------------------
+        for i in range(samples):  # Begin sampling --------------------------------------------------------------------------
             # print("Sampling")
             ratio = ((samples - i) / (samples * 1.0))
-            if i < pt_samples:
+
+
+            if i < pt:
                 self.adapttemp = self.temperature  # T1=T/log(k+1);
-            if i == pt_samples and init_count == 0:  # Move to canonical MCMC
+                #print(i, pt, samples, '     *  ')
+            if i == pt and init_count == 0:  # Move to canonical MCMC
                 self.adapttemp = 1
                 [likelihood, pred_train, msetrain] = self.likelihood_func(cae, train, w_proposal, 1, self.adapttemp)
                 [_, pred_test, msetest] = self.likelihood_func(cae, test, w_proposal, 1, self.adapttemp)
@@ -458,11 +463,11 @@ class ptReplica(multiprocessing.Process):
             old_w = cae.state_dict()
 
  
-            if  (self.use_langevin_gradients is True) and (lx < self.l_prob) and (i > pt_samples):
+            if  ((self.use_langevin_gradients is True) and (lx < self.l_prob)) and (i < pt):
                 w_gd = cae.langevin_gradient(train, copy.deepcopy(w))  # Eq 8
                 w_proposal = cae.addnoiseandcopy(w_gd, 0, step_w)  # np.random.normal(w_gd, step_w, w_size) # Eq 7
                 w_prop_gd = cae.langevin_gradient(train, copy.deepcopy(w_proposal))
-                wc_delta = (cae.getparameters(w) - cae.getparameters(w_prop_gd))
+                wc_delta = (cae.getparameters(copy.deepcopy(w)) - cae.getparameters(w_prop_gd))
                 wp_delta = (cae.getparameters(w_proposal) - cae.getparameters(w_gd))
                 sigma_sq = step_w * step_w
                 # print(wc_delta)
@@ -495,11 +500,11 @@ class ptReplica(multiprocessing.Process):
  
 
             
-            [likelihood_proposal, pred_train, msetrain] = self.likelihood_func(cae, train, w_proposal, tau_pro, self.adapttemp)
+            [likelihood_proposal, pred_train, msetrain] = self.likelihood_func(cae, train, copy.deepcopy(w_proposal), tau_pro, self.adapttemp)
             
-            [likelihood_ignore, pred_test, msetest] = self.likelihood_func(cae, test, w_proposal, tau_pro, self.adapttemp)
+            [likelihood_ignore, pred_test, msetest] = self.likelihood_func(cae, test, copy.deepcopy(w_proposal), tau_pro, self.adapttemp)
 
-            prior_prop = self.prior_likelihood(sigma_squared, cae.getparameters(w_proposal), tau_pro, nu_1, nu_2)  # takes care of the gradients
+            prior_prop = self.prior_likelihood(sigma_squared, cae.getparameters(copy.deepcopy(w_proposal)), tau_pro, nu_1, nu_2)  # takes care of the gradients
              
 
             diff_likelihood = likelihood_proposal - likelihood
@@ -673,10 +678,10 @@ class ptReplica(multiprocessing.Process):
         np.savetxt(file_name, weight_array12, fmt='%1.2f')
 
         file_name = self.path + '/mse_test_chain_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, mse_test, fmt='%1.2f')
+        np.savetxt(file_name, mse_test, fmt='%1.5f')
 
         file_name = self.path + '/mse_train_chain_' + str(self.temperature) + '.txt'
-        np.savetxt(file_name, mse_train, fmt='%1.2f')
+        np.savetxt(file_name, mse_train, fmt='%1.5f')
 
         file_name = self.path + '/acc_test_chain_' + str(self.temperature) + '.txt'
         np.savetxt(file_name, acc_test, fmt='%1.2f')
@@ -1087,13 +1092,8 @@ class ParallelTempering:
         return mse_train, mse_test, acc_train, acc_test, apal, swap_perc
 
     def show_results(self):
-        burnin = int(self.NumSamples * self.burn_in)
-        mcmc_samples = int(self.NumSamples * 0.25)
-        # likelihood_rep = np.zeros((self.num_chains, self.NumSamples - burnin,2))  # index 1 for likelihood posterior and index 0 for Likelihood proposals. Note all likilihood proposals plotted only
-        # accept_percent = np.zeros((self.num_chains, 1))
-        # accept_list = np.zeros((self.num_chains, self.NumSamples))
-        # pos_w = np.zeros((self.num_chains, self.NumSamples - burnin, self.num_param))
-        # fx_train_all = np.zeros((self.num_chains, self.NumSamples - burnin, len(self.traindata)))
+        burnin_samples = int(self.NumSamples * burnin) 
+       
         mse_train = np.zeros((self.num_chains, self.NumSamples))
         acc_train = np.zeros((self.num_chains, self.NumSamples))
 
@@ -1229,15 +1229,16 @@ class ParallelTempering:
 
         print(mse_train, '  mse train')
        
-       
-        burn = int(self.NumSamples * self.burni)
+        
 
-        print(mse_train[:,burn:], ' is burn ')
+        print(mse_train[:,burnin_samples:], ' is burn ')
 
-        mse_train = mse_train[:,burn:]
-        mse_test = mse_test[:,burn:]
-        acc_train = acc_train[:,burn:]
-        acc_test = acc_test[:,burn:]
+        print(burnin_samples, '    burnin_sample ')
+
+        mse_train = mse_train[:,burnin_samples:]
+        mse_test = mse_test[:,burnin_samples:]
+        acc_train = acc_train[:,burnin_samples:]
+        acc_test = acc_test[:,burnin_samples:]
 
 
  
@@ -1340,7 +1341,7 @@ class ParallelTempering:
 
 
 def main():
-    numSamples = 24000 # int(input("Enter no of samples: "))
+    numSamples = 6000 # int(input("Enter no of samples: "))
     # swap_interval = int(swap_ratio * numSamples / num_chains)
     problemfolder = 'results/Paper_Revision'
     description = ' swap interval ' + str(swap_interval)
