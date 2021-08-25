@@ -68,7 +68,7 @@ mt_val = 2
 maxtemp = 2
 swap_interval = 5 #10
 # noise = 0.0125
-use_dataset = 3  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
+use_dataset = 2  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 #use_dataset = int(input('Enter dataset (1/2/3) you want to use [1 (coil 2000) 2 (Madelon) 3 (Swiss roll)]'))  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
 if use_dataset == 1:
@@ -174,8 +174,8 @@ class Model(nn.Module):
             # nn.Sigmoid()
         )
 
-        #self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
-        self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
+        #self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
 
     def forward(self, x):
         x = self.encode(x)
