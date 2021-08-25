@@ -974,6 +974,7 @@ class ParallelTempering:
         #lhood12 = 0
         #lhood21 = 0
         try:
+            print(np.exp((lhood12 - lhood1) + (lhood21 - lhood2)))
             swap_proposal = min(1, np.exp((lhood12 - lhood1) + (lhood21 - lhood2)))
             #swap_proposal = min(1, 0.5 * np.exp(lhood2 - lhood1))
            
@@ -992,9 +993,9 @@ class ParallelTempering:
             param1[self.num_param + 2] = T2
             param2[self.num_param + 1] = lhood12
             param2[self.num_param + 2] = T1
-            print('  swap ')
+            #print('  swap ')
         else:
-            print ('no swap')
+            #print ('no swap')
             swapped = False
             self.total_swap_proposals += 1
             
