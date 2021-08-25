@@ -174,9 +174,9 @@ class Model(nn.Module):
             # nn.Sigmoid()
         )
 
-        #self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
-        lrate = 0.1
-        self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
+        #lrate = 0.1
+        #self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
 
     def forward(self, x):
         x = self.encode(x)
@@ -281,7 +281,7 @@ class ptReplica(multiprocessing.Process):
         self.use_langevin_gradients = use_langevin_gradients
         self.sgd_depth = 1  # Keep as 1
         self.batch_size = batch_size
-        self.l_prob = 0.7  # 0.7
+        self.l_prob = 0.9  # 0.7
         self.adapttemp = temperature
         self.temperature = temperature
         self.train_loss = 0
@@ -458,7 +458,7 @@ class ptReplica(multiprocessing.Process):
             old_w = cae.state_dict()
 
  
-            if  (self.use_langevin_gradients is True) and (lx < self.l_prob):
+            if  (self.use_langevin_gradients is True) and (lx < self.l_prob) and (i > pt_samples):
                 w_gd = cae.langevin_gradient(train, copy.deepcopy(w))  # Eq 8
                 w_proposal = cae.addnoiseandcopy(w_gd, 0, step_w)  # np.random.normal(w_gd, step_w, w_size) # Eq 7
                 w_prop_gd = cae.langevin_gradient(train, copy.deepcopy(w_proposal))
@@ -1000,7 +1000,7 @@ class ParallelTempering:
             param1[self.num_param + 2] = T2
             param2[self.num_param + 1] = lhood12
             param2[self.num_param + 2] = T1
-            print('  swap ')
+            #print('  swap ')
         else: 
             swapped = False
             self.total_swap_proposals += 1
@@ -1340,7 +1340,7 @@ class ParallelTempering:
 
 
 def main():
-    numSamples = 6000 # int(input("Enter no of samples: "))
+    numSamples = 24000 # int(input("Enter no of samples: "))
     # swap_interval = int(swap_ratio * numSamples / num_chains)
     problemfolder = 'results/Paper_Revision'
     description = ' swap interval ' + str(swap_interval)
