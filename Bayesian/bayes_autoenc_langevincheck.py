@@ -60,16 +60,16 @@ n_epochs = 1
 burnin = 0.5
 ulg = True
 no_channels = 1
-step_size = 0.025 #0.005
+step_size = 0.025  # 0.005
 num_chains = 8  # equal to no of cores available
 pt_samples = 0.5
- 
+
 mt_val = 2
 maxtemp = 2
-swap_interval = 5 #10
+swap_interval = 5  # 10
 # noise = 0.0125
-use_dataset = 2  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
-#use_dataset = int(input('Enter dataset (1/2/3) you want to use [1 (coil 2000) 2 (Madelon) 3 (Swiss roll)]'))  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
+use_dataset = 3  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
+# use_dataset = int(input('Enter dataset (1/2/3) you want to use [1 (coil 2000) 2 (Madelon) 3 (Swiss roll)]'))  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
 if use_dataset == 1:
     in_shape = 85
@@ -95,17 +95,17 @@ elif use_dataset == 2:
 elif use_dataset == 3:
     in_shape = 3
     enc_shape = 2
-    in_one = 10 #128  # 100
-    in_two = 5# 64  # 10
+    in_one = 10  # 128  # 100
+    in_two = 5  # 64  # 10
     lrate = 0.01  # 0.04 # 0.01
     step_size = 0.005  # 0.03 # 0.005
 
 
 def data_load(data='train'):
     if use_dataset == 1:
-        X = pd.read_csv('Datasets/coildataupdated.txt', sep="\t", header=None)  # this does not work in my case (linux)
+        X = pd.read_csv('data\coildataupdated.txt', sep="\t", header=None)  # this does not work in my case (linux)
         X = MinMaxScaler().fit_transform(X)
-        #X = torch.from_numpy(X).to(device)
+        # X = torch.from_numpy(X).to(device)
         train_data, test_data = train_test_split(X)
         if data == 'test':
             return test_data
@@ -117,20 +117,20 @@ def data_load(data='train'):
             test_data_url = 'http://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_test.data'
             X = np.loadtxt(urllib2.urlopen(test_data_url))
             X = MinMaxScaler().fit_transform(X)
-            #X = torch.from_numpy(X).to(device) 
+            # X = torch.from_numpy(X).to(device)
             return X
         else:
             train_data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/madelon/MADELON/madelon_train.data'
             X = np.loadtxt(urllib2.urlopen(train_data_url))
             X = MinMaxScaler().fit_transform(X)
-            #X = torch.from_numpy(X).to(device) 
+            # X = torch.from_numpy(X).to(device)
             return X
 
     elif use_dataset == 3:
         X, color = make_swiss_roll(n_samples=5000)
         # print(X.shape)
         X = MinMaxScaler().fit_transform(X)
-        #X = torch.from_numpy(X).to(device)
+        # X = torch.from_numpy(X).to(device)
         train_data, test_data = train_test_split(X)
         if data == 'test':
             return test_data
@@ -151,11 +151,11 @@ class Model(nn.Module):
             nn.Linear(in_shape, in_one),
             # nn.ReLU(True),
             nn.Sigmoid(),
-            #nn.Dropout(0.2),
+            # nn.Dropout(0.2),
             nn.Linear(in_one, in_two),
             # nn.ReLU(True),
             nn.Sigmoid(),
-            #nn.Dropout(0.2),
+            # nn.Dropout(0.2),
             nn.Linear(in_two, enc_shape),
             # nn.Sigmoid()
         )
@@ -165,18 +165,18 @@ class Model(nn.Module):
             nn.Linear(enc_shape, in_two),
             # nn.ReLU(True),
             nn.Sigmoid(),
-            #nn.Dropout(0.2), # droputs should not have been used. 
+            # nn.Dropout(0.2), # droputs should not have been used.
             nn.Linear(in_two, in_one),
             # nn.ReLU(True),
             nn.Sigmoid(),
-            #nn.Dropout(0.2),
+            # nn.Dropout(0.2),
             nn.Linear(in_one, in_shape),
             # nn.Sigmoid()
         )
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
-        #lrate = 0.1
-        #self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
+        # lrate = 0.1
+        # self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
 
     def forward(self, x):
         x = self.encode(x)
@@ -186,39 +186,35 @@ class Model(nn.Module):
     def evaluate_proposal(self, data, w=None):
         # print("Inside evaluate Proposal")
 
-        
         data = torch.from_numpy(data).to(device)
 
-        #y_pred = []
-        #self.los = 0
+        # y_pred = []
+        # self.los = 0
         if w is not None:
             self.loadparameters(w)
         output = copy.deepcopy(self.forward(data).detach())
         output = output.data
-        #loss = self.criterion(output, data)
+        # loss = self.criterion(output, data)
         # loss = loss.item()*inputs.size(0)
-        #y_pred.append(loss.item())
-        #self.los += loss
+        # y_pred.append(loss.item())
+        # self.los += loss
 
-        
         y_pred = output.detach().numpy()
 
+        return y_pred
 
-        return  y_pred
+    def langevin_gradient(self, x, w):  # this needs to be checked
 
-    def langevin_gradient(self, x, w): #this needs to be checked
-
-        
         x = torch.from_numpy(x).to(device)
 
         # print("Inside langevin gradient")
-        #if w is not None:
-        
+        # if w is not None:
+
         self.loadparameters(w)
         for epoch in range(1, n_epochs + 1):
             self.optimizer.zero_grad()
             output = self.forward(x)
-            loss = self.criterion(output, x)  # not sure if this is appropiate 
+            loss = self.criterion(output, x)  # not sure if this is appropiate
             loss.backward()
             self.optimizer.step()
         return copy.deepcopy(self.state_dict())
@@ -234,8 +230,8 @@ class Model(nn.Module):
             l = np.concatenate((l, np.array(copy.deepcopy(dic[name])).reshape(-1)), axis=None)
         l = l[2:]
 
-        #print(l, ' is  l')
-        
+        # print(l, ' is  l')
+
         return l
 
     def dictfromlist(self, param):
@@ -253,7 +249,7 @@ class Model(nn.Module):
 
     def addnoiseandcopy(self, w, mea, std_dev):
         dic = {}
-        #w = self.state_dict()
+        # w = self.state_dict()
         for name in (w.keys()):
             dic[name] = copy.deepcopy(w[name]) + torch.zeros(w[name].size()).normal_(mean=mea, std=std_dev)
         self.loadparameters(dic)
@@ -263,7 +259,7 @@ class Model(nn.Module):
 class ptReplica(multiprocessing.Process):
     def __init__(self, use_langevin_gradients, learn_rate, w, minlim_param, maxlim_param, samples, traindata, testdata,
                  burn_in, temperature, swap_interval, path, parameter_queue, main_process, event, batch_size,
-                 step_size ):
+                 step_size):
         self.samples = samples
         self.cae = Model().double().to(device)
         # self.outres1 =outresult
@@ -291,7 +287,7 @@ class ptReplica(multiprocessing.Process):
         self.minY = np.zeros((1, 1))
         self.maxY = np.zeros((1, 1))
         self.minlim_param = minlim_param
-        self.maxlim_param = maxlim_param 
+        self.maxlim_param = maxlim_param
         self.path = path
 
         # self.outres1.write("Langevin probability used " + str(self.l_prob))
@@ -301,50 +297,46 @@ class ptReplica(multiprocessing.Process):
 
     @staticmethod
     def likelihood_func(cae, data, w, tau_sq, temp):
-        #print("Inside likelihood_func")
+        # print("Inside likelihood_func")
         # y = data
 
-        #tau_sq =  tau_sq.detach().numpy()
-        
-        #data = data.detach().numpy()
+        # tau_sq =  tau_sq.detach().numpy()
 
-        #print(data.shape , ' data shape in lhood ')
+        # data = data.detach().numpy()
 
-        fx = cae.evaluate_proposal(data, w) 
-        
+        # print(data.shape , ' data shape in lhood ')
+
+        fx = cae.evaluate_proposal(data, w)
+
         n = data.shape[0] * data.shape[1]
-        
-        #fx_ = fx.detach().numpy()
- 
 
-        mse = np.mean(np.square(fx -  data) ) 
- 
-        #loss = torch.sum(torch.as_tensor((-0.5 * np.log(2 * math.pi * tau_sq) - 0.5 * np.square(fx) / tau_sq)))
+        # fx_ = fx.detach().numpy()
 
+        mse = np.mean(np.square(fx - data))
 
-        px = -(n/2) * np.log(2 * math.pi * tau_sq)
+        # loss = torch.sum(torch.as_tensor((-0.5 * np.log(2 * math.pi * tau_sq) - 0.5 * np.square(fx) / tau_sq)))
 
-        loss =  px - 0.5 *tau_sq * np.sum(np.square(fx - data) )
+        px = -(n / 2) * np.log(2 * math.pi * tau_sq)
 
-  
+        loss = px - 0.5 * tau_sq * np.sum(np.square(fx - data))
 
         return [loss / temp, fx, mse]
 
     def prior_likelihood(self, sigma_squared, w_list, tausq, nu_1, nu_2):
-        # print("inside prior likelihood") 
+        # print("inside prior likelihood")
         part1 = -1 * ((len(w_list)) / 2) * np.log(sigma_squared)
         part2 = 1 / (2 * sigma_squared) * (sum(np.square(w_list)))
         log_loss = part1 - part2 - (1 + nu_1) * np.log(tausq) - (nu_2 / tausq)
         return log_loss
 
-    def accuracy(self, data): # i dont get the point of this (if MESE then we already get it from lhood)
+    def accuracy(self, data):  # i dont get the point of this (if MESE then we already get it from lhood)
 
         '''loss_ans = []
         output = self.cae(data)
-        loss = self.criterion(output, data) 
+        loss = self.criterion(output, data)
         loss_ans.append(loss)'''
- 
-        #loss = 0 #torch.mean(torch.Tensor(loss_ans))
+
+        # loss = 0 #torch.mean(torch.Tensor(loss_ans))
         return 0
 
     def run(self):
@@ -375,30 +367,21 @@ class ptReplica(multiprocessing.Process):
         weight_array12 = np.zeros(samples)
         sum_value_array = np.zeros(samples)
 
-
-
-
-        pos_w = np.ones((samples, w_size)) #Posterior for all weights
-
+        #pos_w = np.ones((samples, w_size))  # Posterior for all weights
 
         u_value = np.zeros(samples)
 
         train = self.traindata  # data_load(data='train')
         pred_train = cae.evaluate_proposal(train, w)
- 
-
-        
- 
 
         eta = np.log(np.var(pred_train - train))
 
-
         tau_pro = np.exp(eta)
- 
+
         step_eta = 0.2
         # eta = 0 # size of compressed neural network (300)
         w_proposal_ = np.random.randn(w_size)
- 
+
         w_proposal = cae.dictfromlist(w_proposal_)
 
         step_w = self.step_size
@@ -406,17 +389,16 @@ class ptReplica(multiprocessing.Process):
         test = self.testdata  # data_load(data= 'test')
         sigma_squared = 25
         nu_1 = 0
-        nu_2 = 3 
+        nu_2 = 3
         prior_current = self.prior_likelihood(sigma_squared, w_proposal_, tau_pro, nu_1, nu_2)
 
-        [likelihood, pred_train, msetrain] = self.likelihood_func(cae, train, w_proposal, tau_pro, self.adapttemp) 
+        [likelihood, pred_train, msetrain] = self.likelihood_func(cae, train, w_proposal, tau_pro, self.adapttemp)
 
-        #w = w_proposal # w is the current and we first assume that the proposal is accepted as current
- 
+        # w = w_proposal # w is the current and we first assume that the proposal is accepted as current
 
         num_accepted = 0
         langevin_count = 0
-        init_count = 0 
+        init_count = 0
         weight_array[0] = 0
         weight_array1[0] = 0
         weight_array2[0] = 0
@@ -439,17 +421,16 @@ class ptReplica(multiprocessing.Process):
         # acc_test[0] = 50.0
 
         pt = int(pt_samples * samples)
-        
 
         # print('i and samples')
-        for i in range(samples):  # Begin sampling --------------------------------------------------------------------------
+        for i in range(
+                samples):  # Begin sampling --------------------------------------------------------------------------
             # print("Sampling")
             ratio = ((samples - i) / (samples * 1.0))
 
-
             if i < pt:
                 self.adapttemp = self.temperature  # T1=T/log(k+1);
-                #print(i, pt, samples, '     *  ')
+                # print(i, pt, samples, '     *  ')
             if i == pt and init_count == 0:  # Move to canonical MCMC
                 self.adapttemp = 1
                 [likelihood, pred_train, msetrain] = self.likelihood_func(cae, train, w_proposal, 1, self.adapttemp)
@@ -459,11 +440,9 @@ class ptReplica(multiprocessing.Process):
 
             lx = np.random.uniform(0, 1, 1)
 
-
             old_w = cae.state_dict()
 
- 
-            if  ((self.use_langevin_gradients is True) and (lx < self.l_prob)) and (i < pt):
+            if ((self.use_langevin_gradients is True) and (lx < self.l_prob)) and (i < pt):
                 w_gd = cae.langevin_gradient(train, copy.deepcopy(w))  # Eq 8
                 w_proposal = cae.addnoiseandcopy(w_gd, 0, step_w)  # np.random.normal(w_gd, step_w, w_size) # Eq 7
                 w_prop_gd = cae.langevin_gradient(train, copy.deepcopy(w_proposal))
@@ -479,88 +458,80 @@ class ptReplica(multiprocessing.Process):
                 diff_prop = first - second
                 diff_prop = diff_prop
                 langevin_count = langevin_count + 1
-                #print(diff_prop, 'langevin')
+                # print(diff_prop, 'langevin')
             else:
                 diff_prop = 0
                 w_proposal = cae.addnoiseandcopy(copy.deepcopy(w), 0, step_w)  # np.random.normal(w, step_w, w_size)
 
-                #xx = cae.getparameters(w_proposal)
+                # xx = cae.getparameters(w_proposal)
 
-                #w_proposal_ = cae.getparameters(w) 
+                # w_proposal_ = cae.getparameters(w)
 
-                 
+                # print(w_proposal_[0:20] - xx[0:20],'**         w_    ***   ')
 
-                #print(w_proposal_[0:20] - xx[0:20],'**         w_    ***   ')
-                
             eta_pro = eta + np.random.normal(0, step_eta, 1)
- 
 
             tau_pro = np.exp(eta_pro)
             tau_pro = tau_pro[0]
- 
 
-            
-            [likelihood_proposal, pred_train, msetrain] = self.likelihood_func(cae, train, copy.deepcopy(w_proposal), tau_pro, self.adapttemp)
-            
-            [likelihood_ignore, pred_test, msetest] = self.likelihood_func(cae, test, copy.deepcopy(w_proposal), tau_pro, self.adapttemp)
+            [likelihood_proposal, pred_train, msetrain] = self.likelihood_func(cae, train, copy.deepcopy(w_proposal),
+                                                                               tau_pro, self.adapttemp)
 
-            prior_prop = self.prior_likelihood(sigma_squared, cae.getparameters(copy.deepcopy(w_proposal)), tau_pro, nu_1, nu_2)  # takes care of the gradients
-             
+            [likelihood_ignore, pred_test, msetest] = self.likelihood_func(cae, test, copy.deepcopy(w_proposal),
+                                                                           tau_pro, self.adapttemp)
+
+            prior_prop = self.prior_likelihood(sigma_squared, cae.getparameters(copy.deepcopy(w_proposal)), tau_pro,
+                                               nu_1, nu_2)  # takes care of the gradients
 
             diff_likelihood = likelihood_proposal - likelihood
             # diff_likelihood = diff_likelihood*-1
             prior_prop = torch.tensor(prior_prop)
-            #priot_current = torch.tensor(prior_current)
+            # priot_current = torch.tensor(prior_current)
             diff_prior = prior_prop - prior_current
 
             likelihood_proposal_array[i] = likelihood_proposal
             likelihood_array[i] = likelihood
             diff_likelihood_array[i] = diff_likelihood
 
-        
             sum_value = diff_likelihood + diff_prior + diff_prop
-             
+
             u = np.log(random.uniform(0, 1))
             u_value[i] = u
             # print(u)
 
             sum_value_array[i] = sum_value
- 
 
             if u < sum_value:
-            #if 1:
+                # if 1:
                 num_accepted = num_accepted + 1
                 likelihood = likelihood_proposal
                 prior_current = prior_prop
-                w = copy.deepcopy(w_proposal)  # cae.getparameters(w_proposal) 
+                w = copy.deepcopy(w_proposal)  # cae.getparameters(w_proposal)
 
-                print(i, num_accepted, langevin_count, msetrain, msetest, np.sqrt(msetrain), np.sqrt(msetest), likelihood_proposal, prior_prop, diff_prop, 'accepted')
-               
+                print(i, num_accepted, langevin_count, msetrain, msetest, np.sqrt(msetrain), np.sqrt(msetest),
+                      likelihood_proposal, prior_prop, diff_prop, 'accepted')
+
                 mse_train[i] = msetrain
                 mse_test[i] = msetest
-                acc_train[i,] = np.sqrt(msetrain)  #RMSE
+                acc_train[i,] = np.sqrt(msetrain)  # RMSE
                 acc_test[i,] = np.sqrt(msetest)
                 eta = eta_pro
 
-                #print(cae.getparameters(w))
+                # print(cae.getparameters(w))
 
-                pos_w[i,] = cae.getparameters(w)
+                #pos_w[i,] = cae.getparameters(w)
 
-                #print(pos_w[i,], '   *** ')
+                # print(pos_w[i,], '   *** ')
 
             else:
-                w = old_w 
+                w = old_w
 
-            
                 mse_train[i,] = mse_train[i - 1,]
                 mse_test[i,] = mse_test[i - 1,]
                 acc_train[i,] = acc_train[i - 1,]
-                acc_test[i,] = acc_test[i - 1, ]
+                acc_test[i,] = acc_test[i - 1,]
 
-                
-                pos_w[i,] = pos_w[i-1,]
-
-
+                #pos_w[i,] = pos_w[i - 1,]
 
             ll = cae.getparameters()
             # print(len(ll))
@@ -781,17 +752,17 @@ class ptReplica(multiprocessing.Process):
             plt.clf()
 
         elif use_dataset == 1:
-            #global madelon_train_sample
+            # global madelon_train_sample
             coil_train_sample = pd.read_csv('data\Ticeval2000.txt', sep="\t", header=None)
             coil_train_sample_label = pd.read_csv('data\Tictgts2000.txt', sep="\t", header=None)
-            coil_train_sample= coil_train_sample.to_numpy()
-            coil_train_sample_label= coil_train_sample_label.to_numpy()
+            coil_train_sample = coil_train_sample.to_numpy()
+            coil_train_sample_label = coil_train_sample_label.to_numpy()
             coil_train_sample = MinMaxScaler().fit_transform(coil_train_sample)
             coil_train_sample = torch.from_numpy(coil_train_sample).to(device)
             coil_train_sample = copy.deepcopy(cae.encode(coil_train_sample).detach())
             coil_train_sample = coil_train_sample.data
             c_X_train, c_X_test, c_y_train, c_y_test = train_test_split(coil_train_sample, \
-                                                                                coil_train_sample_label)
+                                                                        coil_train_sample_label)
             # using out of the box default parameters provided in scikit learn library
             names_of_classifiers = ['LogisticRegression', 'KNeighbors', 'DecisionTree', 'SVClassifier']
 
@@ -819,7 +790,6 @@ class ptReplica(multiprocessing.Process):
             print('Test', c_raw_test_scores)
             # print('Train',mad_raw_train_scores)
 
-
         ##################################################################################################################################################################################
         # torch.save(cae.state_dict(), PATH)
         return acc_train, acc_test, mse_train, mse_test, sum_value_array, weight_array, weight_array1, weight_array2, weight_array3
@@ -828,7 +798,7 @@ class ptReplica(multiprocessing.Process):
 # Manages the parallel tempering, initialises and executes the parallel chains
 class ParallelTempering:
     def __init__(self, use_langevin_gradients, num_chains, maxtemp, NumSample, swap_interval,
-                 path, batch_size, bi, step_size ):
+                 path, batch_size, bi, step_size):
         cae = Model()
         # self.outres = outres
         self.cae = cae
@@ -864,10 +834,10 @@ class ParallelTempering:
         self.batch_size = batch_size
         self.masternumsample = NumSample
         self.burni = bi
-        self.step_size = step_size 
+        self.step_size = step_size
 
     def default_beta_ladder(self, ndim, ntemps,
-                            Tmax):   
+                            Tmax):
 
         if type(ndim) != int or ndim < 1:
             raise ValueError('Invalid number of dimensions specified.')
@@ -877,7 +847,6 @@ class ParallelTempering:
             raise ValueError('``Tmax`` must be greater than 1.')
         if ntemps is not None and (type(ntemps) != int or ntemps < 1):
             raise ValueError('Invalid number of temperatures specified.')
- 
 
         maxtemp = Tmax
         numchain = ntemps
@@ -920,7 +889,7 @@ class ParallelTempering:
             # infinity.
             betas = np.concatenate((betas, [0]))
 
-        return betas 
+        return betas
 
     def assign_temperatures(self):
         if self.geometric == True:
@@ -954,7 +923,7 @@ class ParallelTempering:
                 ptReplica(self.use_langevin_gradients, self.learn_rate, w, self.minlim_param, self.maxlim_param,
                           self.NumSamples, self.traindata, self.testdata, self.burn_in,
                           self.temperatures[i], self.swap_interval, self.path, self.parameter_queue[i],
-                          self.wait_chain[i], self.event[i], self.batch_size, self.step_size ))
+                          self.wait_chain[i], self.event[i], self.batch_size, self.step_size))
 
     def surr_procedure(self, queue):
         if queue.empty() is False:
@@ -977,22 +946,23 @@ class ParallelTempering:
         lhood2 = param2[self.num_param + 1]
         T2 = param2[self.num_param + 2]
 
-        #print(type(self.traindata[0][0]))
-        #print(type(self.traindata.astype(np.float32)[0][0]))
+        # print(type(self.traindata[0][0]))
+        # print(type(self.traindata.astype(np.float32)[0][0]))
         # SWAPPING PROBABILITIES
-        [lhood12, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.astype(np.float32), w1, np.exp(eta1), T2)
-        [lhood21, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.astype(np.float32), w2, np.exp(eta2), T1)
-        
+        [lhood12, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.astype(np.float32), w1,
+                                                            np.exp(eta1), T2)
+        [lhood21, dump1, dump2] = ptReplica.likelihood_func(self.cae, self.traindata.astype(np.float32), w2,
+                                                            np.exp(eta2), T1)
 
-        #lhood12 = 0
-        #lhood21 = 0
+        # lhood12 = 0
+        # lhood21 = 0
         try:
             swap_proposal = min(1, np.exp((lhood12 - lhood1) + (lhood21 - lhood2)))
-            #swap_proposal = min(1, 0.5 * np.exp(lhood2 - lhood1))
-           
+            # swap_proposal = min(1, 0.5 * np.exp(lhood2 - lhood1))
+
         except OverflowError:
             swap_proposal = 1
-          
+
         u = np.random.uniform(0, 1)
         if u < swap_proposal:
             swapped = True
@@ -1005,11 +975,11 @@ class ParallelTempering:
             param1[self.num_param + 2] = T2
             param2[self.num_param + 1] = lhood12
             param2[self.num_param + 2] = T1
-            #print('  swap ')
-        else: 
+            # print('  swap ')
+        else:
             swapped = False
             self.total_swap_proposals += 1
-            
+
         return param1, param2, swapped
 
     def run_chains(self):
@@ -1092,8 +1062,8 @@ class ParallelTempering:
         return mse_train, mse_test, acc_train, acc_test, apal, swap_perc
 
     def show_results(self):
-        burnin_samples = int(self.NumSamples * burnin) 
-       
+        burnin_samples = int(self.NumSamples * burnin)
+
         mse_train = np.zeros((self.num_chains, self.NumSamples))
         acc_train = np.zeros((self.num_chains, self.NumSamples))
 
@@ -1193,8 +1163,6 @@ class ParallelTempering:
 
         x2 = np.linspace(0, self.NumSamples, num=self.NumSamples)
 
-       
-
         plt.plot(x2, likelihood_val_array_single_chain_plot, label='Likelihood Value')
         # plt.legend(loc='upper right')
         plt.title("Likelihood Value Single Chain")
@@ -1205,7 +1173,6 @@ class ParallelTempering:
         plt.title("Proposed Likelihood Value Single Chain")
         plt.savefig(self.path + '/likelihood_proposal_value_single_chain.png')
         plt.clf()
-  
 
         color = 'tab:red'
         plt.plot(x2, acc_train_single_chain_plot, label="Train", color=color)
@@ -1228,21 +1195,15 @@ class ParallelTempering:
         plt.clf()
 
         print(mse_train, '  mse train')
-       
-        
 
-        print(mse_train[:,burnin_samples:], ' is burn ')
+        print(mse_train[:, burnin_samples:], ' is burn ')
 
         print(burnin_samples, '    burnin_sample ')
 
-        mse_train = mse_train[:,burnin_samples:]
-        mse_test = mse_test[:,burnin_samples:]
-        acc_train = acc_train[:,burnin_samples:]
-        acc_test = acc_test[:,burnin_samples:]
-
-
- 
- 
+        mse_train = mse_train[:, burnin_samples:]
+        mse_test = mse_test[:, burnin_samples:]
+        acc_train = acc_train[:, burnin_samples:]
+        acc_test = acc_test[:, burnin_samples:]
 
         '''sum_val_array = sum_val_array.reshape((self.num_chains * self.NumSamples), 1)
         weight_ar = weight_ar.reshape((self.num_chains * self.NumSamples), 1)
@@ -1302,7 +1263,7 @@ class ParallelTempering:
         plt.xlabel('Parameter Values')
         plt.savefig(self.path + '/weight[5000]_hist.png')
         plt.clf()
-  
+
 
         color = 'tab:red'
         plt.plot(x1, acc_train, label="Train", color=color)
@@ -1323,7 +1284,7 @@ class ParallelTempering:
         plt.legend()
         plt.savefig(self.path + '/superimposed_mse.png')
         plt.clf()'''
- 
+
         # accept_vec = accept_list
 
         # accept = np.sum(accept_percent) / self.num_chains
@@ -1341,7 +1302,7 @@ class ParallelTempering:
 
 
 def main():
-    numSamples = 6000 # int(input("Enter no of samples: "))
+    numSamples = 48000  # int(input("Enter no of samples: "))
     # swap_interval = int(swap_ratio * numSamples / num_chains)
     problemfolder = 'results/Paper_Revision'
     description = ' swap interval ' + str(swap_interval)
@@ -1362,45 +1323,35 @@ def main():
     global outres
     outres = open(problemfolder + '/results.txt', 'w')
 
-    time1 = 0 #time.now()
+    time1 = 0  # time.now()
 
     pt = ParallelTempering(ulg, num_chains, maxtemp, numSamples,
                            swap_interval, problemfolder, batch_size, burnin, step_size)  # declare class
     pt.initialize_chains(burnin)
     mse_train, mse_test, acc_train, acc_test, accept_percent_all, sp = pt.run_chains()
 
-
-
     # acc_train, acc_test, mse_train, mse_test, sva, wa, wa1, wa2, wa3 = mcmc.sampler()
 
-    time2 = 0 #time.now()
+    time2 = 0  # time.now()
 
     time2 = (time2 - time1)
     outres.write("Time for sampling: " + str(time2))
     outres.write('\n')
     outres.write('\n')
 
-
-
-  
-
     # sva = sva[int(numSamples * burnin):]
     # print(lpa)
 
-    #x = np.linspace(0, int(numSamples - numSamples * burnin), num=int(numSamples - numSamples * burnin))
-    #x1 = np.linspace(0, numSamples, num=numSamples)
- 
+    # x = np.linspace(0, int(numSamples - numSamples * burnin), num=int(numSamples - numSamples * burnin))
+    # x1 = np.linspace(0, numSamples, num=numSamples)
 
     mse_tr = np.mean(mse_train)
     msetr_std = np.std(mse_train)
     msetr_max = np.amin(mse_train)
 
-    
-
     mse_tes = np.mean(mse_test)
     msetest_std = np.std(mse_test)
     msetes_max = np.amin(mse_test)
- 
 
     accept_percent_mean = np.mean(accept_percent_all)
 
@@ -1414,11 +1365,10 @@ def main():
     print(accept_percent_mean)
     print("\n")
 
-
     '''acc_tr = np.mean(acc_train[int(numSamples * burnin):])
     acctr_std = np.std(acc_train[int(numSamples * burnin):])
 
-    
+
     print(acc_train.shape, ' acc train   **************')
     acctr_max = np.amax(acc_train[int(numSamples * burnin):])
 
