@@ -69,6 +69,7 @@ maxtemp = 2
 swap_interval = 5  # 10
 # noise = 0.0125
 use_dataset = 2  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
+experiment_type = 2  # 1.-Adam + SGD 2.-Adam only
 # use_dataset = int(input('Enter dataset (1/2/3) you want to use [1 (coil 2000) 2 (Madelon) 3 (Swiss roll)]'))  # 1.- coil 2000 2.- Madelon 3.- Swiss roll
 
 if use_dataset == 1:
@@ -76,8 +77,8 @@ if use_dataset == 1:
     enc_shape = 50
     in_one = 70
     in_two = 60
-    lrate = 0.09  # 0.05
-    step_size = 0.05  # 0.09
+    lrate = 0.01  # 0.09
+    step_size = 0.005  # 0.05
 
 elif use_dataset == 2:
     in_shape = 500
@@ -175,8 +176,9 @@ class Model(nn.Module):
         )
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate)
-        # lrate = 0.1
-        # self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
+        #self.optimizer = torch.optim.Adam(self.parameters(), lr=lrate, betas=[0, 0.99])
+        #lrate = 0.1
+        #self.optimizer = torch.optim.SGD(self.parameters(), lr=lrate)
 
     def forward(self, x):
         x = self.encode(x)
@@ -203,7 +205,11 @@ class Model(nn.Module):
 
         return y_pred
 
-    def langevin_gradient(self, x, w):  # this needs to be checked
+    def langevin_gradient(self, x, w, optimizer_mode=1):  # this needs to be checked
+        if optimizer_mode == 2:
+            self.optimizer = torch.optim.SGD(self.parameters(), lr=0.1)
+            #print(self.optimizer)
+        #print(self.optimizer)
 
         x = torch.from_numpy(x).to(device)
 
@@ -442,23 +448,45 @@ class ptReplica(multiprocessing.Process):
 
             old_w = cae.state_dict()
 
-            if ((self.use_langevin_gradients is True) and (lx < self.l_prob)) and (i < pt):
-                w_gd = cae.langevin_gradient(train, copy.deepcopy(w))  # Eq 8
-                w_proposal = cae.addnoiseandcopy(w_gd, 0, step_w)  # np.random.normal(w_gd, step_w, w_size) # Eq 7
-                w_prop_gd = cae.langevin_gradient(train, copy.deepcopy(w_proposal))
-                wc_delta = (cae.getparameters(copy.deepcopy(w)) - cae.getparameters(w_prop_gd))
-                wp_delta = (cae.getparameters(w_proposal) - cae.getparameters(w_gd))
-                sigma_sq = step_w * step_w
-                # print(wc_delta)
-                # print(wp_delta)
-                first = -0.5 * np.sum(wc_delta * wc_delta) / sigma_sq  # this is wc_delta.T  *  wc_delta /sigma_sq
-                second = -0.5 * np.sum(wp_delta * wp_delta) / sigma_sq
-                # print('first', first)
-                # print('second', second)
-                diff_prop = first - second
-                diff_prop = diff_prop
-                langevin_count = langevin_count + 1
-                # print(diff_prop, 'langevin')
+            #if ((self.use_langevin_gradients is True) and (lx < self.l_prob)) and (i < pt): # using random walk after burin
+            if ((self.use_langevin_gradients is True) and (lx < self.l_prob)):
+
+                if i > pt and experiment_type == 1:  # switch to SGD
+                    w_gd = cae.langevin_gradient(train, copy.deepcopy(w), 2)  # Eq 8
+                    w_proposal = cae.addnoiseandcopy(w_gd, 0, step_w)  # np.random.normal(w_gd, step_w, w_size) # Eq 7
+                    w_prop_gd = cae.langevin_gradient(train, copy.deepcopy(w_proposal), 2)
+                    wc_delta = (cae.getparameters(copy.deepcopy(w)) - cae.getparameters(w_prop_gd))
+                    wp_delta = (cae.getparameters(w_proposal) - cae.getparameters(w_gd))
+                    sigma_sq = step_w * step_w
+                    # print(wc_delta)
+                    # print(wp_delta)
+                    first = -0.5 * np.sum(wc_delta * wc_delta) / sigma_sq  # this is wc_delta.T  *  wc_delta /sigma_sq
+                    second = -0.5 * np.sum(wp_delta * wp_delta) / sigma_sq
+                    # print('first', first)
+                    # print('second', second)
+                    diff_prop = first - second
+                    diff_prop = diff_prop
+                    langevin_count = langevin_count + 1
+                    # print(diff_prop, 'langevin')
+
+                else:
+                    w_gd = cae.langevin_gradient(train, copy.deepcopy(w))  # Eq 8
+                    w_proposal = cae.addnoiseandcopy(w_gd, 0, step_w)  # np.random.normal(w_gd, step_w, w_size) # Eq 7
+                    w_prop_gd = cae.langevin_gradient(train, copy.deepcopy(w_proposal))
+                    wc_delta = (cae.getparameters(copy.deepcopy(w)) - cae.getparameters(w_prop_gd))
+                    wp_delta = (cae.getparameters(w_proposal) - cae.getparameters(w_gd))
+                    sigma_sq = step_w * step_w
+                    # print(wc_delta)
+                    # print(wp_delta)
+                    first = -0.5 * np.sum(wc_delta * wc_delta) / sigma_sq  # this is wc_delta.T  *  wc_delta /sigma_sq
+                    second = -0.5 * np.sum(wp_delta * wp_delta) / sigma_sq
+                    # print('first', first)
+                    # print('second', second)
+                    diff_prop = first - second
+                    diff_prop = diff_prop
+                    langevin_count = langevin_count + 1
+                    # print(diff_prop, 'langevin')
+
             else:
                 diff_prop = 0
                 w_proposal = cae.addnoiseandcopy(copy.deepcopy(w), 0, step_w)  # np.random.normal(w, step_w, w_size)
