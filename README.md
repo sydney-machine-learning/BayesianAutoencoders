@@ -16,7 +16,7 @@ This project was tested on python 3.7 and the required packages can be installed
 # Running Parallel Tempering Bayesian Autoencoder
 ```python
     cd Bayesian
-    python Parallel_Tempering_Tabular.py
+    python bayes_autoenc_langevincheck.py
 ```
 After running these lines, you will be prompted to enter the following values:- 
 * Number of Samples- These are the total number of samples for which the code will run and this will be distributed across 8 Chains to take advantage of parallel computing (Recommended Number of Samples: >48000)
