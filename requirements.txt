@@ -22,7 +22,7 @@ six==1.15.0
 sklearn==0.0
 threadpoolctl==2.1.0
 times==0.7
-torch==1.5.1+cpu
+torch==1.13.1
 torchvision==0.6.1+cpu
 typing-extensions==3.10.0.0
 virtualenv==20.4.7
