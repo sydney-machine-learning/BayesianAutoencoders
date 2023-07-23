@@ -4,7 +4,7 @@ cycler==0.10.0
 distlib==0.3.2
 emcee==3.0.2
 filelock==3.0.12
-future==0.18.2
+future==0.18.3
 importlib-metadata==4.5.0
 joblib==0.16.0
 kiwisolver==1.2.0
